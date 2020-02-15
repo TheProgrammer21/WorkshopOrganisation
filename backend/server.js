@@ -220,12 +220,59 @@ function createWorkshop(req, res) {
             }).catch(err => {
                 respondError(err, res);
                 conn.release();
-            })
+            });
+    }).catch(err => respondError(err, res));
+}
+
+function updateWorkshop(req, res) {
+    let id = req.params.id;
+    let name = req.body.name;
+    let description = req.body.description;
+    let startDate = new Date(Date.parse(req.body.startDate));
+    let duration = req.body.duration;
+    let participants = req.body.participants;
+
+    if (!isNumber(id)) {
+        respondError("Invalid id", res, 400);
+        return;
+    } if (!isSpecified(name) || !isSpecified(description)) {
+        respondError("Missing parameters", res, 400);
+        return;
+    } else if (!isNumber(duration) || !isNumber(participants)) {
+        respondError("Invalid format for duration or participants", res, 400);
+        return;
+    } else if (startDate == "Invalid Date") {
+        respondError("Invalid start date", res, 400);
+        return;
+    } else if (name.length > 65 || description.length > 512) {
+        respondError("Name or description too long", res, 400);
+        return;
+    } else if (duration <= 0) {
+        respondError("The duration must be greater than 0", res, 400);
+        return;
+    }
+
+    pool.getConnection().then(conn => {
+        conn.query("UPDATE workshop SET name = ?, description = ?, startDate = ?, duration = ?, participants = ? WHERE id = ?;", [name, description, startDate, duration, participants, id])
+            .then(rows => {
+                if (rows.affectedRows === 0) {
+                    respondError("Not found", res, 404);
+                } else {
+                    respondSuccess({ id: id }, res, 201);
+                }
+            }).catch(err => {
+                respondError(err, res);
+                conn.release();
+            }).finally(() => conn.release());;
     }).catch(err => respondError(err, res));
 }
 
 app.post('/api/obligatoryUnit/:id/workshop', (req, res) => {
     createWorkshop(req, res);
+});
+
+app.put('/api/workshop/:id', (req, res) => {
+    updateWorkshop(req, res);
 });
 
 app.put('/api/obligatoryUnit/:id', (req, res) => {
