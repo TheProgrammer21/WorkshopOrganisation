@@ -61,7 +61,7 @@ function createObligatoryUnit(req, res) {
     } else if (name.length > 64 || description.length > 512) {
         respondError("Name or description too long", res, 400);
         return;
-    } else if (parseInt(status) < 0 || parseInt(status) > 2) {
+    } else if (parseInt(status) < 0 || parseInt(status) > 3) {
         respondError("Invalid status code", res, 400);
         return;
     }
@@ -92,7 +92,7 @@ function updateObligatoryUnit(req, res) {
     } else if (name.length > 64 || description.length > 512) {
         respondError("Name or description too long", res, 400);
         return;
-    } else if (parseInt(status) < 0 || parseInt(status) > 2) {
+    } else if (parseInt(status) < 0 || parseInt(status) > 3) {
         respondError("Invalid status code", res, 400);
         return;
     }
@@ -153,12 +153,37 @@ function getAllObligatoryUnits(req, res) {
     }).catch(err => respondError(err, res));
 }
 
+function deleteObligatoryUnit(req, res) {
+    let id = req.params.id;
+
+    if (!isNumber(id)) {
+        respondError("Invalid id", res, 400);
+        return;
+    }
+
+    pool.getConnection().then(conn => {
+        conn.query("CALL deleteObligatoryUnit(?);", [id])
+            .then(rows => {
+                if (rows.affectedRows === 0) {
+                    respondError("Not found", res, 404);
+                } else {
+                    respondSuccess(undefined, res);
+                }
+            }).catch(err => respondError(err, res))
+            .finally(() => conn.release());
+    }).catch(err => respondError(err, res))
+}
+
 app.put('/api/obligatoryUnit/:id', (req, res) => {
     updateObligatoryUnit(req, res);
 });
 
 app.get('/api/obligatoryUnit/:id', (req, res) => {
     getObligatoryUnit(req, res);
+});
+
+app.delete('/api/obligatoryUnit/:id', (req, res) => {
+    deleteObligatoryUnit(req, res);
 });
 
 app.get('/api/allObligatoryUnits', (req, res) => {

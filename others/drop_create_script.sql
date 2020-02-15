@@ -17,17 +17,37 @@ DROP DATABASE IF EXISTS `workshop`;
 CREATE DATABASE IF NOT EXISTS `workshop` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `workshop`;
 
+-- Exportiere Struktur von Prozedur workshop.deleteObligatoryUnit
+DROP PROCEDURE IF EXISTS `deleteObligatoryUnit`;
+DELIMITER //
+CREATE PROCEDURE `deleteObligatoryUnit`(
+	IN `unitId` INT
+)
+    MODIFIES SQL DATA
+    COMMENT 'Deletes the obligatory unit as well as all to the unit related workshops'
+BEGIN
+	DELETE 
+	FROM workshop
+	WHERE workshop.id IN (SELECT obligatoryunitworkshop.workshopId
+						FROM obligatoryunitworkshop
+						WHERE obligatoryunitworkshop.obligatoryUnitId = unitId);
+	DELETE 
+	FROM obligatoryunit	
+	WHERE obligatoryunit.id = unitId;
+END//
+DELIMITER ;
+
 -- Exportiere Struktur von Tabelle workshop.obligatoryunit
 DROP TABLE IF EXISTS `obligatoryunit`;
 CREATE TABLE IF NOT EXISTS `obligatoryunit` (
-  `id` int(4) NOT NULL,
+  `id` int(4) NOT NULL AUTO_INCREMENT,
   `startDate` date NOT NULL,
   `endDate` date NOT NULL,
   `name` varchar(64) NOT NULL,
   `description` varchar(512) NOT NULL,
-  `status` int(1) NOT NULL DEFAULT 0 COMMENT '0 = invisible; 1 = visible and registerable; 2 = visible and not registerable',
+  `status` int(1) NOT NULL DEFAULT 0 COMMENT '0 = invisible; 1 = hidden; 2 = visible and registerable; 3 = visible and not registerable',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -39,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `obligatoryunitworkshop` (
   PRIMARY KEY (`obligatoryUnitId`,`workshopId`),
   KEY `FK_obligatoryunitworkshop_workshop` (`workshopId`),
   CONSTRAINT `FK_obligatoryunitworkshop_obligatoryunit` FOREIGN KEY (`obligatoryUnitId`) REFERENCES `obligatoryunit` (`id`),
-  CONSTRAINT `FK_obligatoryunitworkshop_workshop` FOREIGN KEY (`workshopId`) REFERENCES `workshop` (`id`)
+  CONSTRAINT `FK_obligatoryunitworkshop_workshop` FOREIGN KEY (`workshopId`) REFERENCES `workshop` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Daten Export vom Benutzer nicht ausgewählt
@@ -80,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `workshop` (
   `duration` int(2) NOT NULL,
   `participants` int(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
