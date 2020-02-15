@@ -288,8 +288,36 @@ function getWorkshop(req, res) {
     }).catch(err => respondError(err, res));
 }
 
+function getAllWorkshopsForObligatoryUnit(req, res) {
+    let id = req.params.id;
+
+    if (!isNumber(id)) {
+        respondError("Invalid id", res, 400);
+        return;
+    }
+
+    pool.getConnection().then(conn => {
+        conn.query("SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants \
+                    FROM obligatoryUnitWorkshop ow \
+                    INNER JOIN workshop w ON ow.workshopId = w.id \
+                    WHERE obligatoryUnitId = ?;", [id])
+            .then(rows => {
+                if (rows.length === 0) {
+                    respondError("Not found", res, 404);
+                } else {
+                    respondSuccess(rows, res);
+                }
+            }).catch(err => respondError(err, res))
+            .finally(() => conn.release());
+    }).catch(err => respondError(err, res));
+}
+
 app.post('/api/obligatoryUnit/:id/workshop', (req, res) => {
     createWorkshop(req, res);
+});
+
+app.get('/api/obligatoryUnit/:id/allWorkshops', (req, res) => {
+    getAllWorkshopsForObligatoryUnit(req, res);
 });
 
 app.put('/api/workshop/:id', (req, res) => {
