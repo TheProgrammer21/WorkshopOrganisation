@@ -25,7 +25,21 @@ CREATE TABLE IF NOT EXISTS `obligatoryunit` (
   `endDate` date NOT NULL,
   `name` varchar(64) NOT NULL,
   `description` varchar(512) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0 COMMENT '0 = invisible; 1 = visible and registerable; 2 = visible and not registerable',
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Daten Export vom Benutzer nicht ausgewählt
+
+-- Exportiere Struktur von Tabelle workshop.obligatoryunitworkshop
+DROP TABLE IF EXISTS `obligatoryunitworkshop`;
+CREATE TABLE IF NOT EXISTS `obligatoryunitworkshop` (
+  `obligatoryUnitId` int(11) NOT NULL,
+  `workshopId` int(11) NOT NULL,
+  PRIMARY KEY (`obligatoryUnitId`,`workshopId`),
+  KEY `FK_obligatoryunitworkshop_workshop` (`workshopId`),
+  CONSTRAINT `FK_obligatoryunitworkshop_obligatoryunit` FOREIGN KEY (`obligatoryUnitId`) REFERENCES `obligatoryunit` (`id`),
+  CONSTRAINT `FK_obligatoryunitworkshop_workshop` FOREIGN KEY (`workshopId`) REFERENCES `workshop` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Daten Export vom Benutzer nicht ausgewählt
@@ -64,7 +78,6 @@ CREATE TABLE IF NOT EXISTS `workshop` (
   `description` varchar(512) NOT NULL,
   `startDate` date NOT NULL,
   `duration` int(2) NOT NULL,
-  `status` int(1) NOT NULL COMMENT '0 = invisible; 1 = visible and registerable; 2 = visible and not registerable',
   `participants` int(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
