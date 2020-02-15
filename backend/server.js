@@ -57,10 +57,13 @@ function createObligatoryUnit(req, res) {
 
     if (!isSpecified(startDate) || !isSpecified(endDate) || !isSpecified(name) || !isSpecified(description) || !isNumber(status)) {
         respondError("Invalid body format", res, 400);
+        return;
     } else if (name.length > 64 || description.length > 512) {
         respondError("Name or description too long", res, 400);
+        return;
     } else if (parseInt(status) < 0 || parseInt(status) > 2) {
         respondError("Invalid status code", res, 400);
+        return;
     }
 
     pool.getConnection().then(conn => {
@@ -82,12 +85,16 @@ function updateObligatoryUnit(req, res) {
 
     if (!isNumber(id)) {
         respondError("Invalid id", res, 400);
+        return;
     } else if (!isSpecified(startDate) || !isSpecified(endDate) || !isSpecified(name) || !isSpecified(description) || !isNumber(status)) {
         respondError("Invalid body format", res, 400);
+        return;
     } else if (name.length > 64 || description.length > 512) {
         respondError("Name or description too long", res, 400);
+        return;
     } else if (parseInt(status) < 0 || parseInt(status) > 2) {
         respondError("Invalid status code", res, 400);
+        return;
     }
 
     pool.getConnection().then(conn => {
@@ -108,6 +115,7 @@ function getObligatoryUnit(req, res) {
 
     if (!isNumber(id)) {
         respondError("Invalid id", res, 400);
+        return;
     }
 
     pool.getConnection().then(conn => {
@@ -123,15 +131,41 @@ function getObligatoryUnit(req, res) {
     }).catch(err => respondError(err, res));
 }
 
-app.put('/api/obligatoryunit/:id', (req, res) => {
+function getAllObligatoryUnits(req, res) {
+    let status = req.query.status; // can be filtered by status
+
+    if (status != undefined) {
+        if (!isNumber(status)) {
+            respondError("Invalid status filter", res, 400);
+            return;
+        }
+    }
+
+    pool.getConnection().then(conn => {
+        let result;
+        conn.query("SELECT * FROM obligatoryUnit" +
+            (status === undefined ? ";" : " WHERE status = ?;"),
+            (status === undefined ? [] : [status]))
+            .then(rows => {
+                respondSuccess(rows, res);
+            }).catch(err => respondError(err, res))
+            .finally(() => conn.release());
+    }).catch(err => respondError(err, res));
+}
+
+app.put('/api/obligatoryUnit/:id', (req, res) => {
     updateObligatoryUnit(req, res);
 });
 
-app.get('/api/obligatoryunit/:id', (req, res) => {
+app.get('/api/obligatoryUnit/:id', (req, res) => {
     getObligatoryUnit(req, res);
-})
+});
 
-app.post('/api/obligatoryunit', (req, res) => {
+app.get('/api/allObligatoryUnits', (req, res) => {
+    getAllObligatoryUnits(req, res);
+});
+
+app.post('/api/obligatoryUnit', (req, res) => {
     createObligatoryUnit(req, res);
 });
 
