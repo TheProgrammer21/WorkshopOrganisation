@@ -16,3 +16,5 @@ var dbPassword = process.env.dbPassword || "maria"
 var backendPort = process.env.backendPort || 8085
 
 const pool = mariadb.createPool({ host: "localhost", port: dbPort, user: dbUser, password: dbPassword, connectionLimit: 50, database: "workshop" });
+
+app.listen(backendPort, () => console.log("Server started on port " + backendPort));
