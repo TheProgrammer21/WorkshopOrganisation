@@ -72,6 +72,41 @@ function createObligatoryUnit(req, res) {
     }).catch(err => respondError(err, res));
 }
 
+function updateObligatoryUnit(req, res) {
+    let id = req.params.id;
+    let startDate = new Date(req.body.startDate);
+    let endDate = new Date(req.body.startDate);
+    let name = req.body.name;
+    let description = req.body.description;
+    let status = req.body.status;
+
+    if (!isNumber(id)) {
+        respondError("Invalid id", res, 400);
+    } else if (!isSpecified(startDate) || !isSpecified(endDate) || !isSpecified(name) || !isSpecified(description) || !isNumber(status)) {
+        respondError("Invalid body format", res, 400);
+    } else if (name.length > 64 || description.length > 512) {
+        respondError("Name or description too long", res, 400);
+    } else if (parseInt(status) < 0 || parseInt(status) > 2) {
+        respondError("Invalid status code", res, 400);
+    }
+
+    pool.getConnection().then(conn => {
+        conn.query("UPDATE obligatoryUnit SET startDate = ?, endDate = ?, name = ?, description = ?, status = ? WHERE id = ?;", [startDate, endDate, name, description, status, id])
+            .then(rows => {
+                if (rows.effectedRows == 0) {
+                    respondError("Obligatory Unit not found", res, 404);
+                } else {
+                    respondSuccess(res, { id: id }, 201);
+                }
+            }).catch(err => respondError(err, res))
+            .finally(() => conn.release());
+    }).catch(err => respondError(err, res));
+}
+
+app.put('/api/obligatoryunit/:id', (req, res) => {
+    updateObligatoryUnit(req, res);
+});
+
 app.post('/api/obligatoryunit', (req, res) => {
     createObligatoryUnit(req, res);
 });
