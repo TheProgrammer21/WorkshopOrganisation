@@ -49,14 +49,17 @@ function isSpecified(value) {
 
 
 function createObligatoryUnit(req, res) {
-    let startDate = new Date(req.body.startDate);
-    let endDate = new Date(req.body.startDate);
+    let startDate = new Date(Date.parse(req.body.startDate));
+    let endDate = new Date(Date.parse(req.body.startDate));
     let name = req.body.name;
     let description = req.body.description;
     let status = req.body.status;
 
-    if (!isSpecified(startDate) || !isSpecified(endDate) || !isSpecified(name) || !isSpecified(description) || !isNumber(status)) {
+    if (!isSpecified(name) || !isSpecified(description) || !isNumber(status)) {
         respondError("Invalid body format", res, 400);
+        return;
+    } else if (startDate == "Invalid Date" || endDate == "Invalid Date") {
+        respondError("Invalid start or end date", res, 400);
         return;
     } else if (name.length > 64 || description.length > 512) {
         respondError("Name or description too long", res, 400);
@@ -77,8 +80,8 @@ function createObligatoryUnit(req, res) {
 
 function updateObligatoryUnit(req, res) {
     let id = req.params.id;
-    let startDate = new Date(req.body.startDate);
-    let endDate = new Date(req.body.startDate);
+    let startDate = new Date(Date.parse(req.body.startDate));
+    let endDate = new Date(Date.parse(req.body.startDate));
     let name = req.body.name;
     let description = req.body.description;
     let status = req.body.status;
@@ -86,8 +89,11 @@ function updateObligatoryUnit(req, res) {
     if (!isNumber(id)) {
         respondError("Invalid id", res, 400);
         return;
-    } else if (!isSpecified(startDate) || !isSpecified(endDate) || !isSpecified(name) || !isSpecified(description) || !isNumber(status)) {
+    } else if (!isSpecified(name) || !isSpecified(description) || !isNumber(status)) {
         respondError("Invalid body format", res, 400);
+        return;
+    } else if (startDate == "Invalid Date" || endDate == "Invalid Date") {
+        respondError("Invalid start or end date", res, 400);
         return;
     } else if (name.length > 64 || description.length > 512) {
         respondError("Name or description too long", res, 400);
@@ -173,6 +179,54 @@ function deleteObligatoryUnit(req, res) {
             .finally(() => conn.release());
     }).catch(err => respondError(err, res))
 }
+
+function createWorkshop(req, res) {
+    let id = req.params.id;
+    let name = req.body.name;
+    let description = req.body.description;
+    let startDate = new Date(Date.parse(req.body.startDate));
+    let duration = req.body.duration;
+    let participants = req.body.participants;
+
+    if (!isNumber(id)) {
+        respondError("Invalid id", res, 400);
+        return;
+    } if (!isSpecified(name) || !isSpecified(description)) {
+        respondError("Missing parameters", res, 400);
+        return;
+    } else if (!isNumber(duration) || !isNumber(participants)) {
+        respondError("Invalid format for duration or participants", res, 400);
+        return;
+    } else if (startDate == "Invalid Date") {
+        respondError("Invalid start date", res, 400);
+        return;
+    } else if (name.length > 65 || description.length > 512) {
+        respondError("Name or description too long", res, 400);
+        return;
+    } else if (duration <= 0) {
+        respondError("The duration must be greater than 0", res, 400);
+        return;
+    }
+
+    pool.getConnection().then(conn => {
+        conn.query("INSERT INTO workshop (name, description, startDate, duration, participants) VALUES (?, ?, ?, ?, ?);", [name, description, startDate, duration, participants])
+            .then(rows => {
+                let wid = rows.insertId;
+                conn.query("INSERT INTO obligatoryUnitWorkshop (obligatoryUnitId, workshopId) VALUES (?, ?);", [id, wid])
+                    .then(rows => {
+                        respondSuccess({ id: wid }, res, 201);
+                    }).catch(err => respondError(err, res))
+                    .finally(() => conn.release());
+            }).catch(err => {
+                respondError(err, res);
+                conn.release();
+            })
+    }).catch(err => respondError(err, res));
+}
+
+app.post('/api/obligatoryUnit/:id/workshop', (req, res) => {
+    createWorkshop(req, res);
+});
 
 app.put('/api/obligatoryUnit/:id', (req, res) => {
     updateObligatoryUnit(req, res);
