@@ -29,7 +29,7 @@ function respondError(err, res, code = 500) {
     }
 }
 
-function respondSuccess(res, obj = undefined, code = 200) {
+function respondSuccess(obj = undefined, res, code = 200) {
     res.status(code);
     if (obj === undefined) {
         res.send();
@@ -66,7 +66,7 @@ function createObligatoryUnit(req, res) {
     pool.getConnection().then(conn => {
         conn.query("INSERT INTO obligatoryUnit (startDate, endDate, name, description, status) VALUES (?, ?, ?, ?, ?);", [startDate, endDate, name, description, status])
             .then(rows => {
-                respondSuccess(res, { id: rows.insertId }, 201);
+                respondSuccess({ id: rows.insertId }, res, 201);
             }).catch(err => respondError(err, res))
             .finally(() => conn.release());
     }).catch(err => respondError(err, res));
@@ -96,7 +96,27 @@ function updateObligatoryUnit(req, res) {
                 if (rows.effectedRows == 0) {
                     respondError("Obligatory Unit not found", res, 404);
                 } else {
-                    respondSuccess(res, { id: id }, 201);
+                    respondSuccess({ id: id }, res, 201);
+                }
+            }).catch(err => respondError(err, res))
+            .finally(() => conn.release());
+    }).catch(err => respondError(err, res));
+}
+
+function getObligatoryUnit(req, res) {
+    id = req.params.id;
+
+    if (!isNumber(id)) {
+        respondError("Invalid id", res, 400);
+    }
+
+    pool.getConnection().then(conn => {
+        conn.query("SELECT * FROM obligatoryUnit WHERE id = ?;", [id])
+            .then(rows => {
+                if (rows.length == 0) {
+                    respondError("Not found", res, 404);
+                } else {
+                    respondSuccess(rows[0], res)
                 }
             }).catch(err => respondError(err, res))
             .finally(() => conn.release());
@@ -106,6 +126,10 @@ function updateObligatoryUnit(req, res) {
 app.put('/api/obligatoryunit/:id', (req, res) => {
     updateObligatoryUnit(req, res);
 });
+
+app.get('/api/obligatoryunit/:id', (req, res) => {
+    getObligatoryUnit(req, res);
+})
 
 app.post('/api/obligatoryunit', (req, res) => {
     createObligatoryUnit(req, res);
