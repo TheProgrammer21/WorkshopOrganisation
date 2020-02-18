@@ -18,7 +18,6 @@ function respondSuccess(obj = undefined, res, code = 200) {
     }
 }
 
-
 function isNumber(num) {
     return !isNaN(parseFloat(num)) && !isNaN(num);
 }

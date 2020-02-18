@@ -6,7 +6,6 @@ const obligatoryUnitRouter = express.Router();
 obligatoryUnitRouter.get('/all', controller.getAllObligatoryUnits);
 obligatoryUnitRouter.get('/:id/allWorkshops', controller.getAllWorkshopsForObligatoryUnit);
 obligatoryUnitRouter.get('/:id', controller.getObligatoryUnit);
-obligatoryUnitRouter.post('/:id/workshop', controller.createWorkshop);
 obligatoryUnitRouter.post('/', controller.createObligatoryUnit);
 obligatoryUnitRouter.put('/:id', controller.updateObligatoryUnit);
 obligatoryUnitRouter.delete('/:id', controller.deleteObligatoryUnit);
