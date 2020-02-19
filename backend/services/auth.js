@@ -85,7 +85,7 @@ function identify(req, res, next) { // Todo: use as middleware - just set userna
                         req.permissions = rows[0].permissions;
                         next();
                     }
-                }).catch(err => respondError(err, res))
+                }).catch(err => utils.respondError(err, res))
                 .finally(() => conn.release());
         }).catch(err => utils.respondError(err, res));
     } catch (err) { // not logged in because of a problem with the token
