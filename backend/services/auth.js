@@ -33,7 +33,7 @@ function renewToken(req, res) {
     }
 
     try {
-        let body = jwt.verify(token, secret);
+        let body = jwt.verify(token, secret, { algorithms: ["HS256"] });
         let newToken = jwt.sign({ username: body.username }, secret, { algorithm: 'HS256', expiresIn: tokenExpirationTime });
         utils.respondSuccess({ username: body.username, accessToken: newToken }, res);
     } catch (err) {
@@ -53,7 +53,7 @@ function loggedIn(req, res, next) {
     }
 
     try {
-        let body = jwt.verify(token, secret);
+        let body = jwt.verify(token, secret, { algorithms: ["HS256"] });
         req.user = body.username;
         next();
     } catch (err) {
