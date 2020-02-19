@@ -1,5 +1,13 @@
 var db = require('../services/db');
 var utils = require('../services/utils');
+var auth = require('../services/auth');
+
+var obligatoryUnit = {
+    invisible: 0, // just created, still working on - not shown to anyone but admins
+    hidden: 1, // done old unit - not shown to anyone but admins
+    registerable: 2, // shown to anyone - students can register
+    closed: 3 // shown to all but noone cannot register
+}
 
 function createObligatoryUnit(req, res) {
     let startDate = new Date(Date.parse(req.body.startDate));
@@ -83,7 +91,14 @@ function getObligatoryUnit(req, res) {
                 if (rows.length == 0) {
                     utils.respondError("Not found", res, 404);
                 } else {
-                    utils.respondSuccess(rows[0], res)
+                    let status = rows[0].status;
+                    if (status === obligatoryUnit.hidden || status === obligatoryUnit.invisible) { // hidden, only admins can see
+                        if (auth.translatePermission(req.permissions) === "admin") {
+                            utils.respondSuccess(rows[0], res)
+                        } else {
+                            utils.respondError("Unauthorized", res, 401);
+                        }
+                    }
                 }
             }).catch(err => utils.respondError(err, res))
             .finally(() => conn.release());

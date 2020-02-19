@@ -7,8 +7,8 @@ const obligatoryUnitRouter = express.Router();
 obligatoryUnitRouter.get('/all', controller.getAllObligatoryUnits);
 obligatoryUnitRouter.get('/:id/allWorkshops', controller.getAllWorkshopsForObligatoryUnit);
 obligatoryUnitRouter.get('/:id', controller.getObligatoryUnit);
-obligatoryUnitRouter.post('/', controller.createObligatoryUnit);
-obligatoryUnitRouter.put('/:id', controller.updateObligatoryUnit);
-obligatoryUnitRouter.delete('/:id', controller.deleteObligatoryUnit);
+obligatoryUnitRouter.post('/', auth.isAdmin, controller.createObligatoryUnit);
+obligatoryUnitRouter.put('/:id', auth.isAdmin, controller.updateObligatoryUnit);
+obligatoryUnitRouter.delete('/:id', auth.isAdmin, controller.deleteObligatoryUnit);
 
 module.exports = { obligatoryUnitRouter: obligatoryUnitRouter }

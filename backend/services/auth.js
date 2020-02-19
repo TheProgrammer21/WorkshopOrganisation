@@ -58,7 +58,7 @@ function loggedIn(req, res, next) {
     }
 }
 
-function identify(req, res, next) { // Todo: use as middleware - just set username and permission in here
+function identify(req, res, next) {
     let token = req.get('Authorization') || ""; // that split doesn't fail in next line
     req.user = undefined;
     req.permissions = undefined;
@@ -93,10 +93,19 @@ function identify(req, res, next) { // Todo: use as middleware - just set userna
     }
 }
 
+function translatePermission(permission) { // translates number into string
+    switch (permission) {
+        case 0: return "student";
+        case 1: return "admin";
+        default: return undefined;
+    }
+}
+
 module.exports = {
     login: login,
     renewToken: renewToken,
     identify: identify,
     loggedIn: loggedIn,
-    isAdmin: isAdmin
+    isAdmin: isAdmin,
+    translatePermission: translatePermission
 };
