@@ -1,5 +1,6 @@
 var express = require('express');
-var controller = require('../controllers/workshop.js');
+var auth = require('../services/auth');
+var controller = require('../controllers/workshop');
 
 const workshopRouter = express.Router();
 

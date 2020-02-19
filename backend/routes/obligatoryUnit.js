@@ -1,5 +1,6 @@
 var express = require('express');
-var controller = require('../controllers/obligatoryUnit.js');
+var auth = require('../services/auth');
+var controller = require('../controllers/obligatoryUnit');
 
 const obligatoryUnitRouter = express.Router();
 

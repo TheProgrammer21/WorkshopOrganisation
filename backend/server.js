@@ -14,6 +14,7 @@ var baseUrl = "/api";
 app.use(cors());
 app.use(helmet());
 app.use(bodyParser.json());
+app.use(auth.identify);
 app.use((err, req, res, next) => respondError("Invalid JSON format", res, 400));
 
 app.use(baseUrl + '/obligatoryUnit/', auth.loggedIn, obligatoryUnitRouter.obligatoryUnitRouter);

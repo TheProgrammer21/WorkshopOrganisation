@@ -1,5 +1,5 @@
-var db = require('../services/db.js');
-var utils = require('../services/utils.js');
+var db = require('../services/db');
+var utils = require('../services/utils');
 
 function updateWorkshop(req, res) {
     let id = req.params.id;
