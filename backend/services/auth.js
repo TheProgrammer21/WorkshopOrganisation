@@ -4,29 +4,58 @@ var db = require('./db');
 var utils = require('./utils');
 
 var secret = fs.readFileSync('./config/private.key');
+var tokenExpirationTime = "10h";
 
 function login(req, res) {
     let username = req.body.username;
     let password = req.body.password;
 
-    // auth with ldap
+    if (!utils.isSpecified(username) || !utils.isSpecified(password)) {
+        utils.respondError("Missing parameters", res, 400);
+        return;
+    }
 
-    var token = jwt.sign({ username: username }, secret, { algorithm: 'HS256', expiresIn: "10h" });
+    // Todo: auth with ldap
+
+    var token = jwt.sign({ username: username }, secret, { algorithm: 'HS256', expiresIn: tokenExpirationTime });
 
     utils.respondSuccess({ username: username, accessToken: token }, res);
 }
 
-function isLoggedIn(req, res, next) {
-    let token = req.get('Authorization');
+function renewToken(req, res) {
+    let token = req.get('Authorization') || "";
 
-    token = token.split(' ')[1]; //remove the Bearer word at the beginning
+    token = token.split(" ")[1];
+
+    if (token === undefined) {
+        utils.respondError("Unauthorized", res, 401);
+        return;
+    }
 
     try {
         let body = jwt.verify(token, secret);
+        let newToken = jwt.sign({ username: body.username }, secret, { algorithm: 'HS256', expiresIn: tokenExpirationTime });
+        utils.respondSuccess({ username: body.username, accessToken: newToken }, res);
+    } catch (err) {
+        console.log(err)
+        utils.respondError("Unauthorized", res, 401);
+    }
+}
 
-        //body can be used
+function loggedIn(req, res, next) {
+    let token = req.get('Authorization') || ""; // that split doesn't fail in next line
 
-        utils.respondSuccess(undefined, res); //later call next()
+    token = token.split(' ')[1]; //remove the Bearer word at the beginning
+
+    if (token === undefined) { // Bearer at the beginning is missing
+        utils.respondError("Unauthorized", res, 401);
+        return;
+    }
+
+    try {
+        let body = jwt.verify(token, secret);
+        req.user = body.username;
+        next();
     } catch (err) {
         utils.respondError("Unauthorized", res, 401);
     }
@@ -34,5 +63,6 @@ function isLoggedIn(req, res, next) {
 
 module.exports = {
     login: login,
-    isLoggedIn: isLoggedIn
+    renewToken: renewToken,
+    loggedIn: loggedIn
 };
