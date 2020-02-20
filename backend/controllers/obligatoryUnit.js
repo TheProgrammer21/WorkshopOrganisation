@@ -9,6 +9,15 @@ var obligatoryUnit = {
     closed: 3 // shown to all but noone cannot register
 }
 
+function getAllowedStatus(permissions) {
+    switch (auth.translatePermission(permissions)) {
+        case "student":
+            return ["2", "3"];
+        case "admin":
+            return ["0", "1", "2", "3"];
+    }
+}
+
 function createObligatoryUnit(req, res) {
     let startDate = new Date(Date.parse(req.body.startDate));
     let endDate = new Date(Date.parse(req.body.startDate));
@@ -106,20 +115,32 @@ function getObligatoryUnit(req, res) {
 }
 
 function getAllObligatoryUnits(req, res) {
-    let status = req.query.status; // can be filtered by status
+    let status = req.query.status; // can be filtered by status: separated by ',': 0,1,2
+    let allowedStatus;
 
-    if (status != undefined) {
-        if (!utils.isNumber(status)) {
+    if (status === undefined) { // set status to send back all
+        status = ["0", "1", "2", "3"];
+    } else {
+        status = status.split(',');
+        if (!status.every(utils.isNumber)) {
             utils.respondError("Invalid status filter", res, 400);
             return;
         }
     }
 
+    allowedStatus = getAllowedStatus(req.permissions);
+
+    // filter that only those that are requested but also allowed are selected
+    status = status.filter(x => allowedStatus.includes(x));
+
+    if (status.length === 0) { // there are no units that this user could possibly see because of permissions
+        console.log("hier");
+        utils.respondError("Unauthorized", res, 401);
+        return;
+    }
+
     db.getConnection().then(conn => {
-        let result;
-        conn.query("SELECT * FROM obligatoryUnit" +
-            (status === undefined ? ";" : " WHERE status = ?;"),
-            (status === undefined ? [] : [status]))
+        conn.query("SELECT * FROM obligatoryUnit WHERE status IN " + db.createInString(status) + ";", status)
             .then(rows => {
                 utils.respondSuccess(rows, res);
             }).catch(err => utils.respondError(err, res))
@@ -157,15 +178,22 @@ function getAllWorkshopsForObligatoryUnit(req, res) {
     }
 
     db.getConnection().then(conn => {
-        conn.query("SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants \
+        conn.query("SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status \
                     FROM obligatoryUnitWorkshop ow \
                     INNER JOIN workshop w ON ow.workshopId = w.id \
+                    INNER JOIN obligatoryUnit o ON o.id = ow.obligatoryUnitId \
                     WHERE obligatoryUnitId = ?;", [id])
             .then(rows => {
                 if (rows.length === 0) {
                     utils.respondError("Not found", res, 404);
                 } else {
-                    utils.respondSuccess(rows, res);
+                    // is the use authorized to see the obligatory unit
+                    if (getAllowedStatus(req.permissions).includes("" + rows[0].status)) {
+                        rows.forEach(e => delete e.status); // not needed by client
+                        utils.respondSuccess(rows, res);
+                    } else {
+                        utils.respondError("Unauthorized", res, 401);
+                    }
                 }
             }).catch(err => utils.respondError(err, res))
             .finally(() => conn.release());

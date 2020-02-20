@@ -10,6 +10,11 @@ function getConnection() {
     return pool.getConnection();
 }
 
+function createInString(arr) { // returns SQL query string: "(?, ?, ?, ?)"
+    return "(" + "?, ".repeat(arr.length).slice(0, -2) + ")";
+}
+
 module.exports = {
-    getConnection: getConnection
+    getConnection: getConnection,
+    createInString: createInString
 }
