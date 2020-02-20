@@ -206,5 +206,6 @@ module.exports = {
     getAllObligatoryUnits: getAllObligatoryUnits,
     getAllWorkshopsForObligatoryUnit: getAllWorkshopsForObligatoryUnit,
     getObligatoryUnit: getObligatoryUnit,
-    updateObligatoryUnit: updateObligatoryUnit
+    updateObligatoryUnit: updateObligatoryUnit,
+    getAllowedStatus: getAllowedStatus
 }

@@ -5,8 +5,8 @@ var controller = require('../controllers/workshop');
 const workshopRouter = express.Router();
 
 workshopRouter.get('/:id', controller.getWorkshop);
-workshopRouter.post('/', controller.createWorkshop);
-workshopRouter.put('/:id', controller.updateWorkshop);
-workshopRouter.delete('/:id', controller.deleteWorkshop);
+workshopRouter.post('/', auth.isAdmin, controller.createWorkshop);
+workshopRouter.put('/:id', auth.isAdmin, controller.updateWorkshop);
+workshopRouter.delete('/:id', auth.isAdmin, controller.deleteWorkshop);
 
 module.exports = { workshopRouter: workshopRouter }

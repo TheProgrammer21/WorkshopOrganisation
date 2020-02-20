@@ -1,5 +1,6 @@
 var db = require('../services/db');
 var utils = require('../services/utils');
+var obligatoryUnit = require('./obligatoryUnit');
 
 function updateWorkshop(req, res) {
     let id = req.params.id;
@@ -53,12 +54,20 @@ function getWorkshop(req, res) {
     }
 
     db.getConnection().then(conn => {
-        conn.query("SELECT * FROM workshop WHERE id = ?;", [id])
+        conn.query("SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status FROM workshop w \
+                    INNER JOIN obligatoryUnitWorkshop ow ON w.id = ow.workshopId \
+                    INNER JOIN obligatoryUnit o ON ow.obligatoryUnitId = o.id \
+                    WHERE w.id = ?;", [id])
             .then(rows => {
                 if (rows.length === 0) {
                     utils.respondError("Not found", res, 404);
                 } else {
-                    utils.respondSuccess(rows[0], res);
+                    if (obligatoryUnit.getAllowedStatus(req.permissions).includes(rows[0].status + "")) {
+                        rows.forEach(e => delete e.status); // remove not needed property
+                        utils.respondSuccess(rows[0], res);
+                    } else {
+                        utils.respondError("Unauthorized", res, 401);
+                    }
                 }
             }).catch(err => utils.respondError(err, res))
             .finally(() => conn.release());
