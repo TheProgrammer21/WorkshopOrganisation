@@ -39,13 +39,9 @@ function createObligatoryUnit(req, res) {
         return;
     }
 
-    db.getConnection().then(conn => {
-        conn.query("INSERT INTO obligatoryUnit (startDate, endDate, name, description, status) VALUES (?, ?, ?, ?, ?);", [startDate, endDate, name, description, status])
-            .then(rows => {
-                utils.respondSuccess({ id: rows.insertId }, res, 201);
-            }).catch(err => utils.respondError(err, res))
-            .finally(() => conn.release());
-    }).catch(err => utils.respondError(err, res));
+    db.query(res, "INSERT INTO obligatoryUnit (startDate, endDate, name, description, status) VALUES (?, ?, ?, ?, ?);", [startDate, endDate, name, description, status], rows => {
+        utils.respondSuccess({ id: rows.insertId }, res, 201);
+    });
 }
 
 function updateObligatoryUnit(req, res) {
@@ -73,17 +69,13 @@ function updateObligatoryUnit(req, res) {
         return;
     }
 
-    db.getConnection().then(conn => {
-        conn.query("UPDATE obligatoryUnit SET startDate = ?, endDate = ?, name = ?, description = ?, status = ? WHERE id = ?;", [startDate, endDate, name, description, status, id])
-            .then(rows => {
-                if (rows.effectedRows == 0) {
-                    utils.respondError("Obligatory Unit not found", res, 404);
-                } else {
-                    utils.respondSuccess({ id: id }, res, 201);
-                }
-            }).catch(err => utils.respondError(err, res))
-            .finally(() => conn.release());
-    }).catch(err => utils.respondError(err, res));
+    db.query(res, "UPDATE obligatoryUnit SET startDate = ?, endDate = ?, name = ?, description = ?, status = ? WHERE id = ?;", [startDate, endDate, name, description, status, id], rows => {
+        if (rows.effectedRows === 0) {
+            utils.respondError("Obligatory Unit not found", res, 404);
+        } else {
+            utils.respondSuccess({ id: id }, res, 201);
+        }
+    });
 }
 
 function getObligatoryUnit(req, res) {
@@ -94,24 +86,20 @@ function getObligatoryUnit(req, res) {
         return;
     }
 
-    db.getConnection().then(conn => {
-        conn.query("SELECT * FROM obligatoryUnit WHERE id = ?;", [id])
-            .then(rows => {
-                if (rows.length == 0) {
-                    utils.respondError("Not found", res, 404);
+    db.query(res, "SELECT * FROM obligatoryUnit WHERE id = ?;", [id], rows => {
+        if (rows.length == 0) {
+            utils.respondError("Not found", res, 404);
+        } else {
+            let status = rows[0].status;
+            if (status === obligatoryUnit.hidden || status === obligatoryUnit.invisible) { // hidden, only admins can see
+                if (auth.translatePermission(req.permissions) === "admin") {
+                    utils.respondSuccess(rows[0], res)
                 } else {
-                    let status = rows[0].status;
-                    if (status === obligatoryUnit.hidden || status === obligatoryUnit.invisible) { // hidden, only admins can see
-                        if (auth.translatePermission(req.permissions) === "admin") {
-                            utils.respondSuccess(rows[0], res)
-                        } else {
-                            utils.respondError("Unauthorized", res, 401);
-                        }
-                    }
+                    utils.respondError("Unauthorized", res, 401);
                 }
-            }).catch(err => utils.respondError(err, res))
-            .finally(() => conn.release());
-    }).catch(err => utils.respondError(err, res));
+            }
+        }
+    });
 }
 
 function getAllObligatoryUnits(req, res) {
@@ -139,13 +127,9 @@ function getAllObligatoryUnits(req, res) {
         return;
     }
 
-    db.getConnection().then(conn => {
-        conn.query("SELECT * FROM obligatoryUnit WHERE status IN " + db.createInString(status) + ";", status)
-            .then(rows => {
-                utils.respondSuccess(rows, res);
-            }).catch(err => utils.respondError(err, res))
-            .finally(() => conn.release());
-    }).catch(err => utils.respondError(err, res));
+    db.query(res, "SELECT * FROM obligatoryUnit WHERE status IN " + db.createInString(status), status, rows => {
+        utils.respondSuccess(rows, res);
+    });
 }
 
 function deleteObligatoryUnit(req, res) {
@@ -156,17 +140,13 @@ function deleteObligatoryUnit(req, res) {
         return;
     }
 
-    db.getConnection().then(conn => {
-        conn.query("CALL deleteObligatoryUnit(?);", [id])
-            .then(rows => {
-                if (rows.affectedRows === 0) {
-                    utils.respondError("Not found", res, 404);
-                } else {
-                    utils.respondSuccess(undefined, res);
-                }
-            }).catch(err => utils.respondError(err, res))
-            .finally(() => conn.release());
-    }).catch(err => utils.respondError(err, res));
+    db.query(res, "CALL deleteObligatoryUnit(?);", [id], rows => {
+        if (rows.affectedRows === 0) {
+            utils.respondError("Not found", res, 404);
+        } else {
+            utils.respondSuccess(undefined, res);
+        }
+    });
 }
 
 function getAllWorkshopsForObligatoryUnit(req, res) {
@@ -177,27 +157,25 @@ function getAllWorkshopsForObligatoryUnit(req, res) {
         return;
     }
 
-    db.getConnection().then(conn => {
-        conn.query("SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status \
-                    FROM obligatoryUnitWorkshop ow \
-                    INNER JOIN workshop w ON ow.workshopId = w.id \
-                    INNER JOIN obligatoryUnit o ON o.id = ow.obligatoryUnitId \
-                    WHERE obligatoryUnitId = ?;", [id])
-            .then(rows => {
-                if (rows.length === 0) {
-                    utils.respondError("Not found", res, 404);
-                } else {
-                    // is the use authorized to see the obligatory unit
-                    if (getAllowedStatus(req.permissions).includes("" + rows[0].status)) {
-                        rows.forEach(e => delete e.status); // not needed by client
-                        utils.respondSuccess(rows, res);
-                    } else {
-                        utils.respondError("Unauthorized", res, 401);
-                    }
-                }
-            }).catch(err => utils.respondError(err, res))
-            .finally(() => conn.release());
-    }).catch(err => utils.respondError(err, res));
+    let queryString = "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status \
+                        FROM obligatoryUnitWorkshop ow \
+                        INNER JOIN workshop w ON ow.workshopId = w.id \
+                        INNER JOIN obligatoryUnit o ON o.id = ow.obligatoryUnitId \
+                        WHERE obligatoryUnitId = ?;"
+
+    db.query(res, queryString, [id], rows => {
+        if (rows.length === 0) {
+            utils.respondError("Not found", res, 404);
+        } else {
+            // is the use authorized to see the obligatory unit
+            if (getAllowedStatus(req.permissions).includes("" + rows[0].status)) {
+                rows.forEach(e => delete e.status); // not needed by client
+                utils.respondSuccess(rows, res);
+            } else {
+                utils.respondError("Unauthorized", res, 401);
+            }
+        }
+    });
 }
 
 module.exports = {

@@ -30,19 +30,13 @@ function updateWorkshop(req, res) {
         return;
     }
 
-    db.getConnection().then(conn => {
-        conn.query("UPDATE workshop SET name = ?, description = ?, startDate = ?, duration = ?, participants = ? WHERE id = ?;", [name, description, startDate, duration, participants, id])
-            .then(rows => {
-                if (rows.affectedRows === 0) {
-                    utils.respondError("Not found", res, 404);
-                } else {
-                    utils.respondSuccess({ id: id }, res, 201);
-                }
-            }).catch(err => {
-                utils.respondError(err, res);
-                conn.release();
-            }).finally(() => conn.release());;
-    }).catch(err => utils.respondError(err, res));
+    db.query(res, "UPDATE workshop SET name = ?, description = ?, startDate = ?, duration = ?, participants = ? WHERE id = ?;", [name, description, startDate, duration, participants, id], rows => {
+        if (rows.affectedRows === 0) {
+            utils.respondError("Not found", res, 404);
+        } else {
+            utils.respondSuccess({ id: id }, res, 201);
+        }
+    });
 }
 
 function getWorkshop(req, res) {
@@ -53,25 +47,22 @@ function getWorkshop(req, res) {
         return;
     }
 
-    db.getConnection().then(conn => {
-        conn.query("SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status FROM workshop w \
+    db.query(res, "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status FROM workshop w \
                     INNER JOIN obligatoryUnitWorkshop ow ON w.id = ow.workshopId \
                     INNER JOIN obligatoryUnit o ON ow.obligatoryUnitId = o.id \
-                    WHERE w.id = ?;", [id])
-            .then(rows => {
-                if (rows.length === 0) {
-                    utils.respondError("Not found", res, 404);
+                    WHERE w.id = ?;",
+        [id], rows => {
+            if (rows.length === 0) {
+                utils.respondError("Not found", res, 404);
+            } else {
+                if (obligatoryUnit.getAllowedStatus(req.permissions).includes(rows[0].status + "")) {
+                    rows.forEach(e => delete e.status); // remove not needed property
+                    utils.respondSuccess(rows[0], res);
                 } else {
-                    if (obligatoryUnit.getAllowedStatus(req.permissions).includes(rows[0].status + "")) {
-                        rows.forEach(e => delete e.status); // remove not needed property
-                        utils.respondSuccess(rows[0], res);
-                    } else {
-                        utils.respondError("Unauthorized", res, 401);
-                    }
+                    utils.respondError("Unauthorized", res, 401);
                 }
-            }).catch(err => utils.respondError(err, res))
-            .finally(() => conn.release());
-    }).catch(err => utils.respondError(err, res));
+            }
+        });
 }
 
 function deleteWorkshop(req, res) {
@@ -82,17 +73,13 @@ function deleteWorkshop(req, res) {
         return;
     }
 
-    db.getConnection().then(conn => {
-        conn.query("DELETE FROM workshop WHERE id = ?;", [id])
-            .then(rows => {
-                if (rows.affectedRows === 0) {
-                    utils.respondError("Not found", res, 404);
-                } else {
-                    utils.respondSuccess(undefined, res);
-                }
-            }).catch(err => utils.respondError(err, res))
-            .finally(() => conn.release());
-    }).catch(err => utils.respondError(err, res));
+    db.query(res, "DELETE FROM workshop WHERE id = ?;", [id], rows => {
+        if (rows.affectedRows === 0) {
+            utils.respondError("Not found", res, 404);
+        } else {
+            utils.respondSuccess(undefined, res);
+        }
+    });
 }
 
 function createWorkshop(req, res) {
