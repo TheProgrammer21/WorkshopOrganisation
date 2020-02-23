@@ -2,7 +2,7 @@
 -- Host:                         127.0.0.1
 -- Server Version:               10.4.11-MariaDB - mariadb.org binary distribution
 -- Server Betriebssystem:        Win64
--- HeidiSQL Version:             10.3.0.5771
+-- HeidiSQL Version:             10.3.0.5896
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -16,6 +16,30 @@
 DROP DATABASE IF EXISTS `workshop`;
 CREATE DATABASE IF NOT EXISTS `workshop` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `workshop`;
+
+-- Exportiere Struktur von Funktion workshop.createWorkshop
+DROP FUNCTION IF EXISTS `createWorkshop`;
+DELIMITER //
+CREATE FUNCTION `createWorkshop`(`obligatoryUnitId` INT,
+	`name` VARCHAR(64),
+	`description` VARCHAR(512),
+	`startDate` DATE,
+	`duration` INT,
+	`participants` INT
+) RETURNS int(11)
+BEGIN
+	SET @obligatoryunit = (SELECT COUNT(*) FROM obligatoryunit WHERE id = obligatoryUnitId);
+	IF (@obligatoryunit = 0) THEN
+		SIGNAL SQLSTATE '45000'
+			SET MESSAGE_TEXT = 'Obigatory Unit not found';
+	ELSE
+		INSERT INTO workshop (name, description, startDate, duration, participants) VALUES (name, description, startDate, duration, participants);
+		SET @workshopId = LAST_INSERT_ID();
+		INSERT INTO obligatoryUnitWorkshop (obligatoryUnitId, workshopId) VALUES (obligatoryUnitId, @workshopId);
+		RETURN @workshopId;
+	END IF;
+END//
+DELIMITER ;
 
 -- Exportiere Struktur von Prozedur workshop.deleteObligatoryUnit
 DROP PROCEDURE IF EXISTS `deleteObligatoryUnit`;
@@ -45,9 +69,9 @@ CREATE TABLE IF NOT EXISTS `obligatoryunit` (
   `endDate` date NOT NULL,
   `name` varchar(64) NOT NULL,
   `description` varchar(512) NOT NULL,
-  `status` int(1) NOT NULL DEFAULT 0 COMMENT '0 = invisible; 1 = hidden; 2 = visible and registerable; 3 = visible and not registerable',
+  `status` int(1) NOT NULL DEFAULT 0 COMMENT 'inactive = 0;  1 = hidden; 2 = visible and registerable; 3 = visible and not registerable',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
@@ -71,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `firstname` varchar(32) NOT NULL,
   `lastname` varchar(32) NOT NULL,
   `class` varchar(32) NOT NULL,
-  `isAdmin` int(1) NOT NULL DEFAULT 0 COMMENT '0 for no, 1 for is admin',
+  `permissions` int(1) NOT NULL DEFAULT 0 COMMENT '0 for student, 1 for admin',
   PRIMARY KEY (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -84,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `userworkshop` (
   `userId` varchar(10) NOT NULL,
   PRIMARY KEY (`workshopId`,`userId`),
   KEY `FK_userworkshop_user` (`userId`),
-  CONSTRAINT `FK__workshop` FOREIGN KEY (`workshopId`) REFERENCES `workshop` (`id`),
+  CONSTRAINT `FK__workshop` FOREIGN KEY (`workshopId`) REFERENCES `workshop` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_userworkshop_user` FOREIGN KEY (`userId`) REFERENCES `user` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -100,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `workshop` (
   `duration` int(2) NOT NULL,
   `participants` int(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 

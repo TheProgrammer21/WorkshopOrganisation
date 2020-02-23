@@ -110,22 +110,11 @@ function createWorkshop(req, res) {
         return;
     }
 
-    //Todo: error when obligatoryUnit doesn't exist
-
-    db.getConnection().then(conn => {
-        conn.query("INSERT INTO workshop (name, description, startDate, duration, participants) VALUES (?, ?, ?, ?, ?);", [name, description, startDate, duration, participants])
-            .then(rows => {
-                let wid = rows.insertId;
-                conn.query("INSERT INTO obligatoryUnitWorkshop (obligatoryUnitId, workshopId) VALUES (?, ?);", [id, wid])
-                    .then(rows => {
-                        utils.respondSuccess({ id: wid }, res, 201);
-                    }).catch(err => utils.respondError(err, res))
-                    .finally(() => conn.release());
-            }).catch(err => {
-                utils.respondError(err, res);
-                conn.release();
-            });
-    }).catch(err => utils.respondError(err, res));
+    db.query(res, "SELECT createWorkshop(?, ?, ?, ?, ?, ?) \"id\"", [id, name, description, startDate, duration, participants], rows => {
+        utils.respondSuccess({ id: rows[0].id }, res, 201);
+    }, err => {
+        utils.respondError("Not found", res, 404);
+    });
 }
 
 module.exports = {
