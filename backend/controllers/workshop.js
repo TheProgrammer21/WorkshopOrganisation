@@ -9,26 +9,18 @@ function updateWorkshop(req, res) {
     let startDate = new Date(Date.parse(req.body.startDate));
     let duration = req.body.duration;
     let participants = req.body.participants;
+    req.body.id = id; // For check() method
 
-    if (!utils.isNumber(id)) {
-        utils.respondError("Invalid id", res, 400);
-        return;
-    } if (!utils.isSpecified(name) || !utils.isSpecified(description)) {
-        utils.respondError("Missing parameters", res, 400);
-        return;
-    } else if (!utils.isNumber(duration) || !utils.isNumber(participants)) {
-        utils.respondError("Invalid format for duration or participants", res, 400);
-        return;
-    } else if (startDate == "Invalid Date") {
-        utils.respondError("Invalid start date", res, 400);
-        return;
-    } else if (name.length > 65 || description.length > 512) {
-        utils.respondError("Name or description too long", res, 400);
-        return;
-    } else if (duration <= 0) {
-        utils.respondError("The duration must be greater than 0", res, 400);
-        return;
-    }
+    if(!check(req.body, res, {
+        id: {type:"integer", required:true},
+        name: {type:"string", required:true, maxLength:64},
+        description: {type:"string", required:true, maxLength: 512},
+        status: {type:"integer", required:true, min:0, max:3},
+        duration: {type: "integer", required:true, min:1},
+        participants: {type:"integer", required:true, min:1},
+        startDate: {type:"date", required:true},
+        endDate: {type:"date", required:true}
+    })) return;
 
     db.query(res, "UPDATE workshop SET name = ?, description = ?, startDate = ?, duration = ?, participants = ? WHERE id = ?;", [name, description, startDate, duration, participants, id], rows => {
         if (rows.affectedRows === 0) {
@@ -42,10 +34,9 @@ function updateWorkshop(req, res) {
 function getWorkshop(req, res) {
     let id = req.params.id;
 
-    if (!utils.isNumber(id)) {
-        utils.respondError("Invalid id", res, 400);
-        return;
-    }
+    if(!check({id:id}, res, {
+        id: {type:"integer", required:true}
+    })) return;
 
     db.query(res, "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status FROM workshop w \
                     INNER JOIN obligatoryUnitWorkshop ow ON w.id = ow.workshopId \
@@ -68,10 +59,9 @@ function getWorkshop(req, res) {
 function deleteWorkshop(req, res) {
     let id = req.params.id;
 
-    if (!utils.isNumber(id)) {
-        utils.respondError("Invalid id", res, 400);
-        return;
-    }
+    if(!check({id:id}, res, {
+        id: {type:"integer", required:true}
+    })) return;
 
     db.query(res, "DELETE FROM workshop WHERE id = ?;", [id], rows => {
         if (rows.affectedRows === 0) {
@@ -90,25 +80,16 @@ function createWorkshop(req, res) {
     let duration = req.body.duration;
     let participants = req.body.participants;
 
-    if (!utils.isNumber(id)) {
-        utils.respondError("Invalid id", res, 400);
-        return;
-    } if (!utils.isSpecified(name) || !utils.isSpecified(description)) {
-        utils.respondError("Missing parameters", res, 400);
-        return;
-    } else if (!utils.isNumber(duration) || !utils.isNumber(participants)) {
-        utils.respondError("Invalid format for duration or participants", res, 400);
-        return;
-    } else if (startDate == "Invalid Date") {
-        utils.respondError("Invalid start date", res, 400);
-        return;
-    } else if (name.length > 65 || description.length > 512) {
-        utils.respondError("Name or description too long", res, 400);
-        return;
-    } else if (duration <= 0) {
-        utils.respondError("The duration must be greater than 0", res, 400);
-        return;
-    }
+    if(!check(req.body, res, {
+        id: {type:"integer", required:true},
+        name: {type:"string", required:true, maxLength:64},
+        description: {type:"string", required:true, maxLength: 512},
+        status: {type:"integer", required:true, min:0, max:3},
+        duration: {type: "integer", required:true, min:1},
+        participants: {type:"integer", required:true, min:1},
+        startDate: {type:"date", required:true},
+        endDate: {type:"date", required:true}
+    })) return;
 
     db.query(res, "SELECT createWorkshop(?, ?, ?, ?, ?, ?) \"id\"", [id, name, description, startDate, duration, participants], rows => {
         utils.respondSuccess({ id: rows[0].id }, res, 201);
@@ -121,10 +102,9 @@ function createWorkshop(req, res) {
 function register(req, res) {
     let id = req.params.id; // workshop id
 
-    if (!utils.isNumber(id)) {
-        utils.respondSuccess("Invalid id", res, 400);
-        return;
-    }
+    if(!check({id:id}, res, {
+        id: {type:"integer", required:true}
+    })) return;
 
     db.query(res, "SELECT COUNT(*) AS 'amount', participants FROM workshopUser INNER JOIN workshop ON workshopId = id WHERE workshopId = ?;", [id], rows => {
         if (rows[0].amount >= rows[0].participants) { // if the maximum amount of participants is reached yet
