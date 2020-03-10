@@ -117,9 +117,32 @@ function createWorkshop(req, res) {
     });
 }
 
+// register current user for workshop
+function register(req, res) {
+    let id = req.params.id; // workshop id
+
+    if (!utils.isNumber(id)) {
+        utils.respondSuccess("Invalid id", res, 400);
+        return;
+    }
+
+    db.query(res, "SELECT COUNT(*) AS 'amount', participants FROM workshopUser INNER JOIN workshop ON workshopId = id WHERE workshopId = ?;", [id], rows => {
+        if (rows[0].amount >= rows[0].participants) { // if the maximum amount of participants is reached yet
+            utils.respondError("Maximum participants for workshop reached", res, 409);
+        } else {
+            db.query(res, "CALL registerWorkshop(?, ?)", [id, req.user], rows => {
+                // Todo
+            }, err => {
+                // Todo
+            })
+        }
+    })
+}
+
 module.exports = {
     getWorkshop: getWorkshop,
     updateWorkshop: updateWorkshop,
     deleteWorkshop: deleteWorkshop,
-    createWorkshop: createWorkshop
+    createWorkshop: createWorkshop,
+    register: register
 }
