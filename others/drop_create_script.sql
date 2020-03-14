@@ -61,6 +61,20 @@ BEGIN
 END//
 DELIMITER ;
 
+-- Exportiere Struktur von Funktion workshop.isRegisterable
+DROP FUNCTION IF EXISTS `isRegisterable`;
+DELIMITER //
+CREATE FUNCTION `isRegisterable`(`workshopId` INT
+) RETURNS binary(1)
+BEGIN
+	SET @state = (SELECT obligatoryunit.`status`
+						FROM obligatoryunitworkshop
+						INNER JOIN obligatoryunit ON obligatoryunit.id = obligatoryunitworkshop.obligatoryUnitId
+						WHERE obligatoryunitworkshop.workshopId = workshopId);
+	RETURN @state = 2; # only state 2 means registerable
+END//
+DELIMITER ;
+
 -- Exportiere Struktur von Tabelle workshop.obligatoryunit
 DROP TABLE IF EXISTS `obligatoryunit`;
 CREATE TABLE IF NOT EXISTS `obligatoryunit` (
@@ -99,8 +113,8 @@ BEGIN
 DECLARE amount INT;
 DECLARE participants INT;
 
-	# Check if the workshop exists
-	
+# Check if the workshop exists
+
 	SET @workshopExists = (SELECT COUNT(*)
 									FROM workshop
 									WHERE workshop.id = workshopId);
@@ -109,51 +123,57 @@ DECLARE participants INT;
 		SIGNAL SQLSTATE '02000'
 			SET MESSAGE_TEXT = 'The workshop does not exist', MYSQL_ERRNO = 1643;
 	END IF;
-	
-	# Check if the maximum number of participants doesn't exceed
 
-		SELECT COUNT(*) AS 'amount', workshop.participants 
-		INTO amount, participants 
-		FROM userworkshop 
-		INNER JOIN workshop ON userworkshop.workshopId = workshop.id
-		WHERE workshop.id = workshopId;
-		
-		IF amount >= participants THEN
-			SIGNAL SQLSTATE '45000'
-				SET MESSAGE_TEXT = 'The maximum amount of participants is reached', MYSQL_ERRNO = 45000;
-		END IF;
-	
-	# check if the user hasn't registered for this workshop already
-	
-		SET @registeredAlready = (SELECT COUNT(*)
-											FROM userworkshop
-											WHERE userworkshop.workshopId = workshopId AND userworkshop.userId = username);
-											
-		IF @registeredAlready >= 1 THEN
-			SIGNAL SQLSTATE '45001'
-				SET MESSAGE_TEXT = 'The user is already registered for this workshop', MYSQL_ERRNO = 45001;
-		END IF;
-	
-	# check if the user has not registered for any other workshop during the duration of this workshop
-	
-	 	SET @workshopsOfUser = (SELECT COUNT(*)
-										FROM workshop 
-										INNER JOIN userWorkshop ON workshop.id = userWorkshop.workshopId 
-										WHERE userWorkshop.userId = username
-											AND ((SELECT startDate
-												  FROM workshop 
-												  WHERE id = workshopId) BETWEEN workshop.startDate AND DATE_ADD(workshop.startDate, INTERVAL workshop.duration DAY)
-											OR (SELECT DATE_ADD(workshop.startDate, INTERVAL workshop.duration DAY)
-												  FROM workshop 
-												  WHERE id = workshopId) BETWEEN workshop.startDate AND DATE_ADD(workshop.startDate, INTERVAL workshop.duration DAY)));											  	
-		
-		IF @workshopsOfUser = 0 THEN
-			INSERT INTO userWorkshop (userWorkshop.workshopId, userWorkshop.userId) VALUES (workshopId, username);
-		ELSE
-			SIGNAL SQLSTATE '45002'
-				SET MESSAGE_TEXT = 'The user cannot be registered for the workshop because another registration has been made at that time', MYSQL_ERRNO = 45002;
-		END IF;
+# Check if it is possible to register for this workshop at the moment
 
+	IF (SELECT `isRegisterable`(workshopId)) != 1 THEN
+		SIGNAL SQLSTATE '45000'
+			SET MESSAGE_TEXT = 'It is not possible to register for this workshop at the moment', MYSQL_ERRNO = 45000;
+	END IF;
+
+# Check if the maximum number of participants doesn't exceed
+
+	SELECT COUNT(*) AS 'amount', workshop.participants 
+	INTO amount, participants 
+	FROM userworkshop 
+	INNER JOIN workshop ON userworkshop.workshopId = workshop.id
+	WHERE workshop.id = workshopId;
+	
+	IF amount >= participants THEN
+		SIGNAL SQLSTATE '45001'
+			SET MESSAGE_TEXT = 'The maximum amount of participants is reached', MYSQL_ERRNO = 45001;
+	END IF;
+
+# check if the user hasn't registered for this workshop already
+
+	SET @registeredAlready = (SELECT COUNT(*)
+										FROM userworkshop
+										WHERE userworkshop.workshopId = workshopId AND userworkshop.userId = username);
+										
+	IF @registeredAlready >= 1 THEN
+		SIGNAL SQLSTATE '45002'
+			SET MESSAGE_TEXT = 'The user is already registered for this workshop', MYSQL_ERRNO = 45002;
+	END IF;
+
+# check if the user has not registered for any other workshop during the duration of this workshop
+
+ 	SET @workshopsOfUser = (SELECT COUNT(*)
+									FROM workshop 
+									INNER JOIN userWorkshop ON workshop.id = userWorkshop.workshopId 
+									WHERE userWorkshop.userId = username
+										AND ((SELECT startDate
+											  FROM workshop 
+											  WHERE id = workshopId) BETWEEN workshop.startDate AND DATE_ADD(workshop.startDate, INTERVAL workshop.duration DAY)
+										OR (SELECT DATE_ADD(workshop.startDate, INTERVAL workshop.duration DAY)
+											  FROM workshop 
+											  WHERE id = workshopId) BETWEEN workshop.startDate AND DATE_ADD(workshop.startDate, INTERVAL workshop.duration DAY)));											  	
+	
+	IF @workshopsOfUser = 0 THEN
+		INSERT INTO userWorkshop (userWorkshop.workshopId, userWorkshop.userId) VALUES (workshopId, username);
+	ELSE
+		SIGNAL SQLSTATE '45003'
+			SET MESSAGE_TEXT = 'The user cannot be registered for the workshop because another registration has been made at that time', MYSQL_ERRNO = 45003;
+	END IF;
 END//
 DELIMITER ;
 
@@ -174,11 +194,18 @@ BEGIN
 			SET MESSAGE_TEXT = 'Workshop not found', MYSQL_ERRNO = 1643;
 	END IF;
 	
+# Check if it is possible to unregister for this workshop at the moment
+	
+	IF (SELECT `isRegisterable`(workshopId)) != 1 THEN
+		SIGNAL SQLSTATE '45000'
+			SET MESSAGE_TEXT = 'It is not possible to unregister for this workshop at the moment', MYSQL_ERRNO = 45000;
+	END IF;
+	
 # Check if user has registered for that workshop
 
 	IF (SELECT userworkshop.userId FROM userworkshop WHERE userworkshop.workshopId = workshopId AND userworkshop.userId = username) IS NULL THEN
-		SIGNAL SQLSTATE '45000'
-			SET MESSAGE_TEXT = 'User is not registered for this workshop', MYSQL_ERRNO = 45000;
+		SIGNAL SQLSTATE '45001'
+			SET MESSAGE_TEXT = 'User is not registered for this workshop', MYSQL_ERRNO = 45001;
 	END IF;
 	
 DELETE FROM userworkshop WHERE userworkshop.workshopId = workshopId AND userworkshop.userId = username;

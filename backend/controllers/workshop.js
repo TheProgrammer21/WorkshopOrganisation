@@ -134,15 +134,19 @@ function register(req, res) {
                 utils.respondError("Not found", res, 404);
                 break;
             case 45000:
+                utils.respondError("It is not possible to change the registration status for this workshop at the moment", res, 409);
+                break;
+            case 45001:
                 utils.respondError("The maximum amount of participants is reached", res, 409);
                 break;
             case 1062:
-            case 45001:
+            case 45002:
                 utils.respondError("User is already registered for this workshop", res, 409);
                 break;
-            case 45002:
+            case 45003:
                 utils.respondError("The user is registered for another workshop at this time", res, 409);
                 break;
+
         }
     });
 }
@@ -164,6 +168,9 @@ function unregister(req, res) {
                 utils.respondError("Not found", res, 404);
                 break;
             case 45000:
+                utils.respondError("It is not possible to change the registration status for this workshop at the moment", res, 409);
+                break;
+            case 45001:
                 utils.respondError("User has not registered for this workshop", res, 409);
                 break;
         }
