@@ -126,17 +126,26 @@ function register(req, res) {
         return;
     }
 
-    db.query(res, "SELECT COUNT(*) AS 'amount', participants FROM workshopUser INNER JOIN workshop ON workshopId = id WHERE workshopId = ?;", [id], rows => {
-        if (rows[0].amount >= rows[0].participants) { // if the maximum amount of participants is reached yet
-            utils.respondError("Maximum participants for workshop reached", res, 409);
-        } else {
-            db.query(res, "CALL registerWorkshop(?, ?)", [id, req.user], rows => {
-                // Todo
-            }, err => {
-                // Todo
-            })
+    db.query(res, "CALL registerWorkshop(?, ?)", [id, req.user], rows => {
+        utils.respondSuccess(undefined, res, 200);
+    }, err => {
+        switch (err.errno) {
+            case 1643:
+                utils.respondError("Not found", res, 404);
+                break;
+            case 45000:
+                utils.respondError("The maximum amount of participants is reached", res, 409);
+                break;
+            case 1062:
+            case 45001:
+                utils.respondError("User is already registered for this workshop", res, 409);
+                break;
+            case 45002:
+                utils.respondError("The user is registered for another workshop at this time", res, 409);
+                break;
         }
-    })
+    });
+
 }
 
 module.exports = {
