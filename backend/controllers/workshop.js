@@ -145,7 +145,29 @@ function register(req, res) {
                 break;
         }
     });
+}
 
+// to undo registration for a workshop
+function unregister(req, res) {
+    let id = req.params.id;
+
+    if (!utils.isNumber(id)) {
+        utils.respondSuccess("Invalid id", res, 400);
+        return;
+    }
+
+    db.query(res, "CALL unregisterFromWorkshop(?, ?);", [id, req.user], rows => {
+        utils.respondSuccess(undefined, res, 200);
+    }, err => {
+        switch (err.errno) {
+            case 1643:
+                utils.respondError("Not found", res, 404);
+                break;
+            case 45000:
+                utils.respondError("User has not registered for this workshop", res, 409);
+                break;
+        }
+    });
 }
 
 module.exports = {
@@ -153,5 +175,6 @@ module.exports = {
     updateWorkshop: updateWorkshop,
     deleteWorkshop: deleteWorkshop,
     createWorkshop: createWorkshop,
-    register: register
+    register: register,
+    unregister: unregister
 }

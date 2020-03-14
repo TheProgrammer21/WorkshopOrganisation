@@ -157,6 +157,35 @@ DECLARE participants INT;
 END//
 DELIMITER ;
 
+-- Exportiere Struktur von Prozedur workshop.unregisterFromWorkshop
+DROP PROCEDURE IF EXISTS `unregisterFromWorkshop`;
+DELIMITER //
+CREATE PROCEDURE `unregisterFromWorkshop`(
+	IN `workshopId` INT,
+	IN `username` VARCHAR(10)
+)
+    COMMENT 'To unregister the user from a workshop it has signed up for'
+BEGIN
+
+# Check if workshop exists
+
+	IF (SELECT workshop.id FROM workshop WHERE id = workshopId) IS NULL THEN
+		SIGNAL SQLSTATE '02000'
+			SET MESSAGE_TEXT = 'Workshop not found', MYSQL_ERRNO = 1643;
+	END IF;
+	
+# Check if user has registered for that workshop
+
+	IF (SELECT userworkshop.userId FROM userworkshop WHERE userworkshop.workshopId = workshopId AND userworkshop.userId = username) IS NULL THEN
+		SIGNAL SQLSTATE '45000'
+			SET MESSAGE_TEXT = 'User is not registered for this workshop', MYSQL_ERRNO = 45000;
+	END IF;
+	
+DELETE FROM userworkshop WHERE userworkshop.workshopId = workshopId AND userworkshop.userId = username;
+
+END//
+DELIMITER ;
+
 -- Exportiere Struktur von Tabelle workshop.user
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
