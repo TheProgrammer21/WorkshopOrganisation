@@ -81,6 +81,8 @@ function identify(req, res, next) {
                 .then(rows => {
                     if (rows.length === 0) { // username doesn't exist
                         req.user = undefined;
+                        req.permissions = undefined;
+                        next();
                     } else { // set the permission on the req object
                         req.permissions = rows[0].permissions;
                         next();
