@@ -19,7 +19,7 @@ function respondSuccess(obj = undefined, res, code = 200) {
 }
 
 function isNumber(num) {
-    return !isNaN(parseFloat(num)) && !isNaN(num);
+    return !isNaN(parseFloat(num)) && !isNaN(num) && !(num - 1 === num);
 }
 
 function isSpecified(value) {
