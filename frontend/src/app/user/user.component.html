@@ -1,0 +1,9 @@
+<mat-card>
+  <mat-card-title>
+    <h4>User</h4>
+  </mat-card-title>
+  <mat-card-content>
+    <mat-error *ngIf="!user">Nicht angemeldet!</mat-error>
+    <span *ngIf="user">Angemeldet als {{user.name}}</span>
+  </mat-card-content>
+</mat-card>
