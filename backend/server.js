@@ -20,7 +20,7 @@ app.use((err, req, res, next) => respondError("Invalid JSON format", res, 400));
 app.use(baseUrl + '/obligatoryUnit/', auth.loggedIn, obligatoryUnitRouter.obligatoryUnitRouter);
 app.use(baseUrl + '/workshop', auth.loggedIn, workshopRouter.workshopRouter);
 
-app.get(baseUrl + '/login', auth.login);
-app.get(baseUrl + '/renew', auth.renewToken);
+app.post(baseUrl + '/login', auth.login);
+app.post(baseUrl + '/renew', auth.renewToken);
 
 app.listen(backendPort, () => console.log("Server started on port " + backendPort));

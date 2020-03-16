@@ -8,5 +8,7 @@ workshopRouter.get('/:id', controller.getWorkshop);
 workshopRouter.post('/', auth.isAdmin, controller.createWorkshop);
 workshopRouter.put('/:id', auth.isAdmin, controller.updateWorkshop);
 workshopRouter.delete('/:id', auth.isAdmin, controller.deleteWorkshop);
+workshopRouter.post('/:id/register', controller.register);
+workshopRouter.delete('/:id/unregister', controller.unregister);
 
 module.exports = { workshopRouter: workshopRouter }
