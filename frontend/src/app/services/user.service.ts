@@ -50,7 +50,7 @@ export class UserService {
               localStorage.removeItem('access_token');
               this.accessToken = undefined;
               this.user.next(undefined);
-              this.router.navigateByUrl('/user/login');
+              this.router.navigateByUrl('/user/login', {state: {error: 'Sitzung ist abgelaufen'}});
               break;
           }
         } else {
@@ -58,7 +58,7 @@ export class UserService {
         }
       });
     } else {
-      this.router.navigateByUrl('/user/login');
+      this.router.navigateByUrl('/user/login', {state: {error: 'Bitte für diese Funktion anmelden'}});
     }
   }
 
