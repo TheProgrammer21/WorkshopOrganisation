@@ -4,7 +4,12 @@ const db = require('./db');
 const utils = require('./utils');
 
 const secret = fs.readFileSync('./config/private.key');
-const tokenExpirationTime = '10h';
+const tokenExpirationTime = '1h';
+const tokenRenewMinutes = 5;
+
+function generateToken(username) {
+    return jwt.sign({ username: username }, secret, { algorithm: 'HS256', expiresIn: tokenExpirationTime });
+}
 
 function login(req, res) {
     let username = req.body.username;
@@ -17,7 +22,7 @@ function login(req, res) {
 
     // Todo: auth with ldap
 
-    var token = jwt.sign({ username: username }, secret, { algorithm: 'HS256', expiresIn: tokenExpirationTime });
+    var token = generateToken(username);
 
     db.query(res, 'SELECT permissions FROM user WHERE username = ?;', [username], rows => {
         if (rows.length !== 0 && rows[0].permissions === 0) { // only admins are stored in database
@@ -72,6 +77,12 @@ function identify(req, res, next) {
                 next();
             }
         });
+
+        if (Date.now() / 1000 + (tokenRenewMinutes * 60) >= body.exp) { // if token expires in tokenRenewMinutes minutes
+            res.set('Authorization', generateToken(req.user));
+        } else {
+            res.set('Authorization', token);
+        }
     } catch (err) { // not logged in because of a problem with the token
         next();
     }
