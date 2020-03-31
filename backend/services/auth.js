@@ -1,52 +1,43 @@
-var fs = require('fs');
-var jwt = require('jsonwebtoken');
-var db = require('./db');
-var utils = require('./utils');
+const fs = require('fs');
+const jwt = require('jsonwebtoken');
+const db = require('./db');
+const utils = require('./utils');
 
-var secret = fs.readFileSync('./config/private.key');
-var tokenExpirationTime = "10h";
+const secret = fs.readFileSync('./config/private.key');
+const tokenExpirationTime = '1h';
+const tokenRenewMinutes = 5;
+
+function generateToken(username) {
+    return jwt.sign({ username: username }, secret, { algorithm: 'HS256', expiresIn: tokenExpirationTime });
+}
 
 function login(req, res) {
     let username = req.body.username;
     let password = req.body.password;
 
     if (!utils.isSpecified(username) || !utils.isSpecified(password)) {
-        utils.respondError("Missing parameters", res, 400);
+        utils.respondError('Missing parameters', res, 400);
         return;
     }
 
     // Todo: auth with ldap
 
-    var token = jwt.sign({ username: username }, secret, { algorithm: 'HS256', expiresIn: tokenExpirationTime });
+    var token = generateToken(username);
 
-    utils.respondSuccess({ username: username, accessToken: token }, res);
-}
-
-function renewToken(req, res) {
-    let token = req.get('Authorization') || "";
-
-    token = token.split(" ")[1];
-
-    if (token === undefined) {
-        utils.respondError("Unauthorized", res, 401);
-        return;
-    }
-
-    try {
-        let body = jwt.verify(token, secret, { algorithms: ["HS256"] });
-        let newToken = jwt.sign({ username: body.username }, secret, { algorithm: 'HS256', expiresIn: tokenExpirationTime });
-        utils.respondSuccess({ username: body.username, accessToken: newToken }, res);
-    } catch (err) {
-        console.log(err)
-        utils.respondError("Unauthorized", res, 401);
-    }
+    db.query(res, 'SELECT permissions FROM user WHERE username = ?;', [username], rows => {
+        if (rows.length !== 0 && rows[0].permissions === 0) { // only admins are stored in database
+            utils.respondSuccess({ username: username, role: 'admin', accessToken: "Bearer " + token }, res);
+        } else { // not stored in database means student
+            utils.respondSuccess({ username: username, role: 'student', accessToken: "Bearer " + token }, res);
+        }
+    });
 }
 
 function isAdmin(req, res, next) {
     if (req.user !== undefined && req.permissions === 1) {
         next();
     } else {
-        utils.respondError("Unauthorized", res, 401);
+        utils.respondError('Unauthorized', res, 401);
     }
 }
 
@@ -54,12 +45,12 @@ function loggedIn(req, res, next) {
     if (req.user !== undefined && req.permissions !== undefined) {
         next();
     } else {
-        utils.respondError("Unauthorized", res, 401);
+        utils.respondError('Unauthorized', res, 401);
     }
 }
 
 function identify(req, res, next) {
-    let token = req.get('Authorization') || ""; // that split doesn't fail in next line
+    let token = req.get('Authorization') || ''; // that split doesn't fail in next line
     req.user = undefined;
     req.permissions = undefined;
 
@@ -72,22 +63,26 @@ function identify(req, res, next) {
 
     // a token has been passed: check validity
     try {
-        let body = jwt.verify(token, secret, { algorithms: ["HS256"] });
+        let body = jwt.verify(token, secret, { algorithms: ['HS256'] });
 
         req.user = body.username; // set username
 
-        db.getConnection().then(conn => {
-            conn.query("SELECT permissions FROM user WHERE username = ?;", [body.username])
-                .then(rows => {
-                    if (rows.length === 0) { // username doesn't exist
-                        req.user = undefined;
-                    } else { // set the permission on the req object
-                        req.permissions = rows[0].permissions;
-                        next();
-                    }
-                }).catch(err => utils.respondError(err, res))
-                .finally(() => conn.release());
-        }).catch(err => utils.respondError(err, res));
+        db.query(res, 'SELECT permissions FROM user WHERE username = ?;', [body.username], rows => {
+            if (rows.length === 0) { // username doesn't exist
+                req.user = undefined;
+                req.permissions = undefined;
+                next();
+            } else { // set the permission on the req object
+                req.permissions = rows[0].permissions;
+                next();
+            }
+        });
+
+        if (Date.now() / 1000 + (tokenRenewMinutes * 60) >= body.exp) { // if token expires in tokenRenewMinutes minutes
+            res.set('Authorization', "Bearer " + generateToken(req.user));
+        } else {
+            res.set('Authorization', "Bearer " + token);
+        }
     } catch (err) { // not logged in because of a problem with the token
         next();
     }
@@ -95,15 +90,14 @@ function identify(req, res, next) {
 
 function translatePermission(permission) { // translates number into string
     switch (permission) {
-        case 0: return "student";
-        case 1: return "admin";
+        case 0: return 'student';
+        case 1: return 'admin';
         default: return undefined;
     }
 }
 
 module.exports = {
     login: login,
-    renewToken: renewToken,
     identify: identify,
     loggedIn: loggedIn,
     isAdmin: isAdmin,
