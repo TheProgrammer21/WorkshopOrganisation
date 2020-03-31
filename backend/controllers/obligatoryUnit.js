@@ -154,7 +154,8 @@ function getAllWorkshopsForObligatoryUnit(req, res) {
         return;
     }
 
-    let queryString = "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status \
+    let queryString = "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status, \
+                        (SELECT COUNT(*) FROM userworkshop WHERE workshopId = w.id) 'currentParticipants' \
                         FROM obligatoryUnitWorkshop ow \
                         INNER JOIN workshop w ON ow.workshopId = w.id \
                         INNER JOIN obligatoryUnit o ON o.id = ow.obligatoryUnitId \
