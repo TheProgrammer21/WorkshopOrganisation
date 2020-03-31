@@ -47,7 +47,9 @@ function getWorkshop(req, res) {
         return;
     }
 
-    db.query(res, "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status FROM workshop w \
+    db.query(res, "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status, \
+                    (SELECT COUNT(*) FROM userworkshop WHERE workshopId = 50) 'currentParticipants' \
+                    FROM workshop w \
                     INNER JOIN obligatoryUnitWorkshop ow ON w.id = ow.workshopId \
                     INNER JOIN obligatoryUnit o ON ow.obligatoryUnitId = o.id \
                     WHERE w.id = ?;",
