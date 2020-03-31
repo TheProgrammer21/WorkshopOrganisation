@@ -21,6 +21,5 @@ app.use(baseUrl + '/obligatoryUnit/', auth.loggedIn, obligatoryUnitRouter.obliga
 app.use(baseUrl + '/workshop', auth.loggedIn, workshopRouter.workshopRouter);
 
 app.post(baseUrl + '/login', auth.login);
-app.post(baseUrl + '/renew', auth.renewToken);
 
 app.listen(backendPort, () => console.log("Server started on port " + backendPort));

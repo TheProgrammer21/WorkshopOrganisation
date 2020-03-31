@@ -22,26 +22,6 @@ function login(req, res) {
     utils.respondSuccess({ username: username, accessToken: token }, res);
 }
 
-function renewToken(req, res) {
-    let token = req.get('Authorization') || "";
-
-    token = token.split(" ")[1];
-
-    if (token === undefined) {
-        utils.respondError("Unauthorized", res, 401);
-        return;
-    }
-
-    try {
-        let body = jwt.verify(token, secret, { algorithms: ["HS256"] });
-        let newToken = jwt.sign({ username: body.username }, secret, { algorithm: 'HS256', expiresIn: tokenExpirationTime });
-        utils.respondSuccess({ username: body.username, accessToken: newToken }, res);
-    } catch (err) {
-        console.log(err)
-        utils.respondError("Unauthorized", res, 401);
-    }
-}
-
 function isAdmin(req, res, next) {
     if (req.user !== undefined && req.permissions === 1) {
         next();
@@ -105,7 +85,6 @@ function translatePermission(permission) { // translates number into string
 
 module.exports = {
     login: login,
-    renewToken: renewToken,
     identify: identify,
     loggedIn: loggedIn,
     isAdmin: isAdmin,
