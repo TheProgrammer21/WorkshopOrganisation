@@ -25,7 +25,7 @@ function login(req, res) {
     var token = generateToken(username);
 
     db.query(res, 'SELECT permissions FROM user WHERE username = ?;', [username], rows => {
-        if (rows.length !== 0 && rows[0].permissions === 0) { // only admins are stored in database
+        if (rows.length !== 0 && rows[0].permissions === 1) { // only admins are stored in database
             utils.respondSuccess({ username: username, role: 'admin', accessToken: "Bearer " + token }, res);
         } else { // not stored in database means student
             utils.respondSuccess({ username: username, role: 'student', accessToken: "Bearer " + token }, res);
