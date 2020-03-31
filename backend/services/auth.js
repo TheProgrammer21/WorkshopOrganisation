@@ -26,9 +26,9 @@ function login(req, res) {
 
     db.query(res, 'SELECT permissions FROM user WHERE username = ?;', [username], rows => {
         if (rows.length !== 0 && rows[0].permissions === 0) { // only admins are stored in database
-            utils.respondSuccess({ username: username, role: 'admin', accessToken: token }, res);
+            utils.respondSuccess({ username: username, role: 'admin', accessToken: "Bearer " + token }, res);
         } else { // not stored in database means student
-            utils.respondSuccess({ username: username, role: 'student', accessToken: token }, res);
+            utils.respondSuccess({ username: username, role: 'student', accessToken: "Bearer " + token }, res);
         }
     });
 }
@@ -79,9 +79,9 @@ function identify(req, res, next) {
         });
 
         if (Date.now() / 1000 + (tokenRenewMinutes * 60) >= body.exp) { // if token expires in tokenRenewMinutes minutes
-            res.set('Authorization', generateToken(req.user));
+            res.set('Authorization', "Bearer " + generateToken(req.user));
         } else {
-            res.set('Authorization', token);
+            res.set('Authorization', "Bearer " + token);
         }
     } catch (err) { // not logged in because of a problem with the token
         next();
