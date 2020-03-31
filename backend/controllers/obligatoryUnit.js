@@ -23,9 +23,8 @@ function createObligatoryUnit(req, res) {
     let endDate = new Date(Date.parse(req.body.startDate));
     let name = req.body.name;
     let description = req.body.description;
-    let status = req.body.status;
 
-    if (!utils.isSpecified(name) || !utils.isSpecified(description) || !utils.isNumber(status)) {
+    if (!utils.isSpecified(name) || !utils.isSpecified(description)) {
         utils.respondError("Invalid body format", res, 400);
         return;
     } else if (startDate == "Invalid Date" || endDate == "Invalid Date") {
@@ -34,12 +33,9 @@ function createObligatoryUnit(req, res) {
     } else if (name.length > 64 || description.length > 512) {
         utils.respondError("Name or description too long", res, 400);
         return;
-    } else if (parseInt(status) < 0 || parseInt(status) > 3) {
-        utils.respondError("Invalid status code", res, 400);
-        return;
     }
 
-    db.query(res, "INSERT INTO obligatoryUnit (startDate, endDate, name, description, status) VALUES (?, ?, ?, ?, ?);", [startDate, endDate, name, description, status], rows => {
+    db.query(res, "INSERT INTO obligatoryUnit (startDate, endDate, name, description, status) VALUES (?, ?, ?, ?, ?);", [startDate, endDate, name, description, 0], rows => {
         utils.respondSuccess({ id: rows.insertId }, res, 201);
     });
 }
