@@ -25,4 +25,7 @@ app.post(baseUrl + '/login', auth.login);
 
 app.listen(backendPort, () => console.log('Server started on port ' + backendPort));
 
-app.use((err, req, res, next) => utils.respondError('Internal Server error', res, 500));
+app.use((err, req, res, next) => {
+    console.log(err);
+    utils.respondError('Internal Server error', res, 500)
+});

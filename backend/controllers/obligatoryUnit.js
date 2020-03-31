@@ -105,7 +105,9 @@ function getAllObligatoryUnits(req, res) {
     if (status === undefined) { // set status to send back all
         status = ["0", "1", "2", "3"];
     } else {
-        status = status.split(',');
+        if (typeof (status) === "string") {
+            status = [status];
+        }
         if (!status.every(utils.isNumber)) {
             utils.respondError("Invalid status filter", res, 400);
             return;
@@ -118,7 +120,6 @@ function getAllObligatoryUnits(req, res) {
     status = status.filter(x => allowedStatus.includes(x));
 
     if (status.length === 0) { // there are no units that this user could possibly see because of permissions
-        console.log("hier");
         utils.respondError("Unauthorized", res, 401);
         return;
     }
