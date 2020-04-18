@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ConfigService } from './config.service';
 import { tap } from 'rxjs/operators';
 import { ErrorService } from './error.service';
 import { MatDialog } from '@angular/material/dialog';
-import { LoginDialogComponent } from '../user-old/login-dialog/login.dialog';
+import { LoginDialogComponent } from '../user/login-dialog/login.dialog';
+import { ConfigurationService } from './configuration.service';
 
 export interface User {
   username: string;
@@ -32,7 +32,7 @@ export class UserService {
   private accessToken: string;
 
   constructor(
-    private configService: ConfigService,
+    private configService: ConfigurationService,
     private errorService: ErrorService,
     private dialog: MatDialog,
     private http: HttpClient

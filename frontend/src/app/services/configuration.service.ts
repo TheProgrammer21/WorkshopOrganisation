@@ -12,4 +12,8 @@ export class ConfigurationService {
       `${window.location.protocol}//${window.location.hostname}:8085/api`;
   }
 
+  public getBackendAddress(): string {
+    return this.backendAddress;
+  }
+
 }

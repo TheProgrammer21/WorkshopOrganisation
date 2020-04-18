@@ -1,5 +1,4 @@
 mat-card {
-  //padding: 5px 30px 25px 30px;
   width: fit-content;
   min-width: 300px;
   margin: auto;
@@ -9,7 +8,16 @@ mat-spinner {
   margin: auto;
 }
 
+mat-card-content {
+  overflow: hidden;
+}
+
 mat-error {
+  text-align: center;
+  padding-bottom: 15px;
+}
+
+.cause-container {
   text-align: center;
 }
 

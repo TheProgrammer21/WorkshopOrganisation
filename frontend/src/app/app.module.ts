@@ -1,12 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { LoginComponent } from './login/login.component';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
@@ -17,15 +16,17 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { UserComponent } from './user-old/user.component';
 import { UserService } from './services/user.service';
 import { INTERCEPTORS_PROVIDER } from './interceptors/interceptors';
+import { LoginDialogComponent } from './user/login-dialog/login.dialog';
+import { LoginComponent } from './user/login/login.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    UserComponent
+    LoginDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -40,7 +41,8 @@ import { INTERCEPTORS_PROVIDER } from './interceptors/interceptors';
     MatListModule,
     MatSnackBarModule,
     HttpClientModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialog
   ],
   providers: [
     UserService, // Fix undefined on first requests (Interceptor)

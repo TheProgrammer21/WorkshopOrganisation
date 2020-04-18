@@ -1,20 +1,47 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
+import { UserService } from './services/user.service';
+import { FadeSite, FadeIn } from './animations/animations';
 import { RouterOutlet } from '@angular/router';
-import { FadeIn } from './animations/animations';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   animations: [
-    FadeIn
+    FadeSite, FadeIn
   ]
 })
-export class AppComponent {
-  title = 'frontend';
+export class AppComponent implements AfterViewInit {
+  title = 'WorkshopOrganisation';
+
+  public barExpanded: boolean;
+
+  public loggedIn: boolean;
+  public showContent: boolean;
+
+  constructor(
+    private userService: UserService
+  ) {
+    this.userService.getUser().subscribe(user => {
+      if (user) {
+        this.loggedIn = true;
+        this.showContent = true;
+      } else {
+        this.loggedIn = false;
+      }
+    });
+  }
+
+  ngAfterViewInit() { }
 
   public getRouterOutletState(outlet: RouterOutlet) {
-    return outlet.isActivated ? outlet.activatedRoute : '';
+    return outlet && outlet.activatedRouteData;
+  }
+
+  public removeContent() {
+    if (!this.loggedIn) {
+      this.showContent = false;
+    }
   }
 
 }

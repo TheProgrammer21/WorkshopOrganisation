@@ -1,0 +1,25 @@
+<h1 mat-dialog-title>Login</h1>
+
+<div mat-dialog-content [@fadeIn]="this.error" [@fadeInRetarded]="this.loading">
+  <mat-error *ngIf="error">{{error}}</mat-error>
+  <div *ngIf="!loading" class="forms">
+    <mat-form-field>
+      <mat-label>Name</mat-label>
+      <input matInput required [(ngModel)]="username" placeholder="Username">
+    </mat-form-field>
+    <br>
+    <mat-form-field>
+      <mat-label>Passwort</mat-label>
+      <input matInput required [(ngModel)]="password" type="password" placeholder="********" (keydown.enter)="onLogin()">
+    </mat-form-field>
+  </div>
+
+  <div class="spinner" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <div mat-dialog-actions class="actions">
+    <button mat-button [disabled]="loading" (click)="onCancel()">Abbrechen</button>
+    <button mat-button [disabled]="loading" (click)="onLogin()" cdkFocusInitial>Anmelden</button>
+  </div>
+</div>
