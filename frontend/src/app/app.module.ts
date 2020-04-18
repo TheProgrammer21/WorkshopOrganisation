@@ -17,8 +17,9 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { UserComponent } from './user/user.component';
-import { AuthInterceptor } from './interceptors/auth-interceptor';
+import { UserComponent } from './user-old/user.component';
+import { UserService } from './services/user.service';
+import { INTERCEPTORS_PROVIDER } from './interceptors/interceptors';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { AuthInterceptor } from './interceptors/auth-interceptor';
     MatProgressSpinnerModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    UserService, // Fix undefined on first requests (Interceptor)
+    INTERCEPTORS_PROVIDER
   ],
   bootstrap: [AppComponent]
 })

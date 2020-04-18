@@ -1,16 +1,27 @@
-import { trigger, state, style, transition, animate, query, stagger, group } from '@angular/animations';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 
-export const AnimateBar =
-  trigger('expandBar', [
-    state('expanded', style ({
-      width: '320px'
-    })),
-    state('closed', style ({
-      width: '70px'
-    })),
-    transition('expanded <=> closed', [
-      animate('0.2s ease')
-    ])
+export const FadeSite =
+  trigger('fadeSite', [
+    transition('void => *', [
+      style({
+        opacity: 0
+      }),
+      animate('500ms ease', style({
+        opacity: 1
+      }))
+    ]
+  ),
+    transition('* => void', [
+        style({
+          opacity: 1,
+          filter: 'brightness(100%)'
+        }),
+        animate('1s 500ms ease', style({
+          opacity: 0,
+          filter: 'brightness(0%)'
+        }))
+      ]
+    )
   ]);
 
 export const FadeText =
@@ -25,19 +36,6 @@ export const FadeText =
         animate('200ms ease', style({ opacity: 0 })),
         { optional: true }
       ),
-    ])
-  ]);
-
-export const ContentSize =
-  trigger('contentSizing', [
-    state('expanded', style ({
-      'margin-left': '321px'
-    })),
-    state('closed', style ({
-      'margin-left': '71px'
-    })),
-    transition('expanded <=> closed', [
-      animate('200ms ease')
     ])
   ]);
 
