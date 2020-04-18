@@ -1,0 +1,16 @@
+
+<mat-error *ngIf="error">{{error}}</mat-error>
+<div *ngIf="!error">
+  <mat-card *ngFor="let obligatoryUnit of obligatoryUnits">
+    <mat-card-header>
+      <h3>{{obligatoryUnit.name}}</h3>
+    </mat-card-header>
+    <mat-divider></mat-divider>
+    <mat-card-content>
+      <span>{{obligatoryUnit.description}}</span>
+    </mat-card-content>
+    <mat-card-footer>
+
+    </mat-card-footer>
+  </mat-card>
+</div>

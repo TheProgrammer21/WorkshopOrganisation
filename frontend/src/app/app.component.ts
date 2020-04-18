@@ -1,6 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { UserService } from './services/user.service';
-import { FadeSite, FadeIn } from './animations/animations';
+import { FadeIn } from './animations/animations';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -8,7 +8,7 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   animations: [
-    FadeSite, FadeIn
+    FadeIn
   ]
 })
 export class AppComponent implements AfterViewInit {
@@ -17,19 +17,13 @@ export class AppComponent implements AfterViewInit {
   public barExpanded: boolean;
 
   public loggedIn: boolean;
-  public showContent: boolean;
 
   constructor(
     private userService: UserService
   ) {
-    this.userService.getUser().subscribe(user => {
-      if (user) {
-        this.loggedIn = true;
-        this.showContent = true;
-      } else {
-        this.loggedIn = false;
-      }
-    });
+    this.userService.getUser().subscribe(
+      user => this.loggedIn = user !== undefined
+    );
   }
 
   ngAfterViewInit() { }
@@ -38,10 +32,8 @@ export class AppComponent implements AfterViewInit {
     return outlet && outlet.activatedRouteData;
   }
 
-  public removeContent() {
-    if (!this.loggedIn) {
-      this.showContent = false;
-    }
+  public onLogOut() {
+    this.userService.logOut();
   }
 
 }

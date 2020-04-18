@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class ConfigurationService {
 
-  public backendAddress: string;
+  private backendAddress: string;
 
   constructor() {
     this.backendAddress =

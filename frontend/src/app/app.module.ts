@@ -20,13 +20,25 @@ import { UserService } from './services/user.service';
 import { INTERCEPTORS_PROVIDER } from './interceptors/interceptors';
 import { LoginDialogComponent } from './user/login-dialog/login.dialog';
 import { LoginComponent } from './user/login/login.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { ObligatoryUnitListComponent } from './workshop/obligatory-unit-list/obligatory-unit-list.component';
+import { WorkshopListComponent } from './workshop/workshop-list/workshop-list.component';
+import { WorkshopDetailComponent } from './workshop/workshop-detail/workshop-detail.component';
+import { WorkshopEditComponent } from './workshop/workshop-edit/workshop-edit.component';
+import { ObligatoryUnitEditComponent } from './workshop/obligatory-unit-edit/obligatory-unit-edit.component';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    LoginDialogComponent
+    LoginDialogComponent,
+    ObligatoryUnitListComponent,
+    WorkshopListComponent,
+    WorkshopDetailComponent,
+    WorkshopEditComponent,
+    ObligatoryUnitEditComponent
   ],
   imports: [
     BrowserModule,
@@ -42,7 +54,9 @@ import { MatDialog } from '@angular/material/dialog';
     MatSnackBarModule,
     HttpClientModule,
     MatProgressSpinnerModule,
-    MatDialog
+    MatDialogModule,
+    MatToolbarModule,
+    MatIconModule
   ],
   providers: [
     UserService, // Fix undefined on first requests (Interceptor)

@@ -9,6 +9,7 @@ import { ConfigurationService } from './configuration.service';
 
 export interface User {
   username: string;
+  role: string;
 }
 
 export interface LoginCredentials {
@@ -18,6 +19,7 @@ export interface LoginCredentials {
 
 interface AuthResponse {
   username: string;
+  role: string;
   accessToken: string;
 }
 
@@ -41,7 +43,10 @@ export class UserService {
     const token = localStorage.getItem('access_token');
     if (token && !this.isTokenExpired(token)) {
       this.changeAccessToken(token);
-      this.user.next(this.getUserFromToken(token));
+      this.user.next({
+        username: this.getUsernameFromToken(token),
+        role: localStorage.getItem('user_role')
+      });
     }
   }
 
@@ -49,11 +54,8 @@ export class UserService {
     return this.getBodyFromToken(token).exp * 1000 < new Date().getTime();
   }
 
-  private getUserFromToken(token: string): User {
-    const body = this.getBodyFromToken(token);
-    return {
-      username: body.username
-    };
+  private getUsernameFromToken(token: string): string {
+    return this.getBodyFromToken(token).username;
   }
 
   private getBodyFromToken(token: string): any {
@@ -61,7 +63,11 @@ export class UserService {
   }
 
   private handleUserChange(auth: AuthResponse): void {
-    this.user.next({ username: auth.username });
+    this.user.next({
+      username: auth.username,
+      role: auth.role
+    });
+    localStorage.setItem('user_role', auth.role);
     this.changeAccessToken(auth.accessToken.split(' ')[1]);
   }
 
@@ -97,6 +103,7 @@ export class UserService {
   public logOut(): void {
     this.accessToken = undefined;
     localStorage.removeItem('access_token');
+    localStorage.removeItem('user_role');
     this.user.next(undefined);
   }
 

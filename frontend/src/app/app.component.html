@@ -1,15 +1,17 @@
-<!-- Greeter when not logged in: -->
-<div *ngIf="!loggedIn" [@fadeSite]="loggedIn" (@fadeSite.done)="removeContent()" class="greeter">
-  <div class="greeter-header">
-    <img class="logo" src="assets/logo.png" width="100">
-    <h1 class="logo-text">Workshop Organisation<br>HTBLA Kaindorf</h1>
+<div class="header-container">
+  <div class="main-toolbar">
+    <button mat-icon-button (click)="onLogOut()">
+      <mat-icon>exit_to_app</mat-icon>
+    </button>
   </div>
-  <app-login [redirectUrl]="undefined"></app-login>
+  <a routerLink="/"><img src="/assets/logo.png" class="logo" alt="Logo"></a>
 </div>
 
-<!-- Main Site when logged in: -->
-<div *ngIf="showContent" class="main-site">
-  <div class="main-content" [@fadeIn]="getRouterOutletState(outlet)">
+<mat-divider></mat-divider>
+
+<div class="content-container" [@fadeIn]="loggedIn">
+  <app-login *ngIf="!loggedIn"></app-login>
+  <div *ngIf="loggedIn" [@fadeIn]="getRouterOutletState(outlet)">
     <router-outlet #outlet="outlet"></router-outlet>
   </div>
 </div>
