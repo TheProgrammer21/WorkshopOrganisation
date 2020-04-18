@@ -59,7 +59,12 @@ function getWorkshop(req, res) {
             } else {
                 if (obligatoryUnit.getAllowedStatus(req.permissions).includes(rows[0].status + "")) {
                     rows.forEach(e => delete e.status); // remove not needed property
-                    utils.respondSuccess(rows[0], res);
+                    db.query(res, `SELECT COUNT(*) "count"
+                                    FROM userworkshop uw
+                                    WHERE uw.workshopId = ? AND uw.userId = ?;`, [id, req.user], count => {
+                        rows[0].registered = count[0].count !== 0;
+                        utils.respondSuccess(rows[0], res);
+                    });
                 } else {
                     utils.respondError("Unauthorized", res, 401);
                 }
