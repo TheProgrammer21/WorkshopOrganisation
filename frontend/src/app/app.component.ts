@@ -17,12 +17,21 @@ export class AppComponent implements AfterViewInit {
   public barExpanded: boolean;
 
   public loggedIn: boolean;
+  public showLogin: boolean;
 
   constructor(
     private userService: UserService
   ) {
     this.userService.getUser().subscribe(
-      user => this.loggedIn = user !== undefined
+      user => {
+        if (user) {
+          this.showLogin = false;
+          setTimeout(() => this.loggedIn = true, 1);
+        } else {
+          this.loggedIn = false;
+          setTimeout(() => this.showLogin = true, 1);
+        }
+      }
     );
   }
 

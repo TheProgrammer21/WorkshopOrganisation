@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -60,7 +60,8 @@ import { MatIconModule } from '@angular/material/icon';
   ],
   providers: [
     UserService, // Fix undefined on first requests (Interceptor)
-    INTERCEPTORS_PROVIDER
+    INTERCEPTORS_PROVIDER,
+    { provide: LOCALE_ID, useValue: navigator.language }
   ],
   bootstrap: [AppComponent]
 })

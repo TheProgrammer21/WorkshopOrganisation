@@ -3,14 +3,19 @@
 <div *ngIf="!error">
   <mat-card *ngFor="let obligatoryUnit of obligatoryUnits">
     <mat-card-header>
-      <h3>{{obligatoryUnit.name}}</h3>
+      <div>
+        <h3>{{obligatoryUnit.name}}</h3>
+        <p>{{obligatoryUnit.startDate | date:"dd. MMMM"}}</p>
+        </div>
     </mat-card-header>
     <mat-divider></mat-divider>
     <mat-card-content>
       <span>{{obligatoryUnit.description}}</span>
     </mat-card-content>
     <mat-card-footer>
-
+      <a mat-fab routerLink="">
+        <mat-icon>edit</mat-icon>
+      </a>
     </mat-card-footer>
   </mat-card>
 </div>

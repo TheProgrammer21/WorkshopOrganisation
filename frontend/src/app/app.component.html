@@ -1,6 +1,6 @@
 <div class="header-container">
   <div class="main-toolbar">
-    <button mat-icon-button (click)="onLogOut()">
+    <button *ngIf="loggedIn" mat-icon-button (click)="onLogOut()">
       <mat-icon>exit_to_app</mat-icon>
     </button>
   </div>
@@ -10,8 +10,8 @@
 <mat-divider></mat-divider>
 
 <div class="content-container" [@fadeIn]="loggedIn">
-  <app-login *ngIf="!loggedIn"></app-login>
   <div *ngIf="loggedIn" [@fadeIn]="getRouterOutletState(outlet)">
     <router-outlet #outlet="outlet"></router-outlet>
   </div>
+  <app-login *ngIf="showLogin"></app-login>
 </div>
