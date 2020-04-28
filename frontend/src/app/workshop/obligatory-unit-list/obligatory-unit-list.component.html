@@ -44,8 +44,8 @@
       <mat-divider></mat-divider>
       <p>{{obligatoryUnit.description}}</p>
     </mat-card-content>
-    <mat-divider></mat-divider>
     <mat-card-footer *ngIf="showAdmin" class="admin-tools-footer">
+      <mat-divider></mat-divider>
       <button routerLink="/obligatoryunits/{{obligatoryUnit.id}}/edit" mat-icon-button>
         <mat-icon>edit</mat-icon>
       </button>
