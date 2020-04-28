@@ -28,6 +28,15 @@ import { WorkshopEditComponent } from './workshop/workshop-edit/workshop-edit.co
 import { ObligatoryUnitEditComponent } from './workshop/obligatory-unit-edit/obligatory-unit-edit.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  MatMomentDateModule,
+  MomentDateAdapter,
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+  MAT_MOMENT_DATE_FORMATS
+} from '@angular/material-moment-adapter';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -56,13 +65,35 @@ import { MatIconModule } from '@angular/material/icon';
     MatProgressSpinnerModule,
     MatDialogModule,
     MatToolbarModule,
-    MatIconModule
+    MatIconModule,
+    MatDatepickerModule,
+    MatMomentDateModule,
+    MatSelectModule,
+    MatTooltipModule
   ],
   providers: [
-    UserService, // Fix undefined on first requests (Interceptor)
+    UserService, ErrorService, // Fix undefined on first requests (Interceptor)
     INTERCEPTORS_PROVIDER,
-    { provide: LOCALE_ID, useValue: navigator.language }
+    { provide: LOCALE_ID, useValue: navigator.language },
+    { provide: MAT_DATE_LOCALE, useValue: navigator.language }, // Set date local to browser local --> Datepicker
+    // Setting providers for DatePicker to support local
+    {
+      provide: DateAdapter,
+      useClass: MomentDateAdapter,
+      deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
+    },
+    {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS}
   ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+// Localization
+import { registerLocaleData } from '@angular/common';
+
+import localeDe from '@angular/common/locales/de';
+import localeDeExtra from '@angular/common/locales/extra/de';
+import { ErrorService } from './services/error.service';
+import { MAT_DATE_LOCALE, DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
+
+registerLocaleData(localeDe, 'de', localeDeExtra);

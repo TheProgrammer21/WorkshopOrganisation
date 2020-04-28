@@ -17,6 +17,29 @@ export interface ObligatoryUnitData {
   description: string;
 }
 
+export interface LocalObligatoryUnit {
+  startDate: Date;
+  endDate: Date;
+  name: string;
+  description: string;
+}
+
+export function PARSE_TO_LOCAL(ou: ObligatoryUnit): LocalObligatoryUnit {
+  return {
+    name: ou.name,
+    description: ou.description,
+    startDate: new Date(ou.startDate),
+    endDate: new Date(ou.endDate)
+  };
+}
+
+export const STATUS = new Map<number, string[]>([
+  [0, ['Unsichtbar', 'Nur Admins - Neu erstellt']],
+  [1, ['Versteckt', 'Nur Admins - Alte Events']],
+  [2, ['Sichtbar', 'Jeder - Normal verwendbar']],
+  [3, ['Gesperrt', 'Jeder - Nur ansehen, nicht registrieren']]
+]);
+
 @Injectable({
   providedIn: 'root'
 })

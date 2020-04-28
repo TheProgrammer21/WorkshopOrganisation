@@ -10,6 +10,7 @@ import { ObligatoryUnitEditComponent } from './workshop/obligatory-unit-edit/obl
 const routes: Routes = [
   {path: '', redirectTo: 'obligatoryunits', pathMatch: 'full'},
   {path: 'obligatoryunits', component: ObligatoryUnitListComponent},
+  {path: 'obligatoryunits/new', component: ObligatoryUnitEditComponent},
   {path: 'obligatoryunits/:ouid', component: WorkshopListComponent},
   {path: 'obligatoryunits/:ouid/edit', component: ObligatoryUnitEditComponent},
   {path: 'obligatoryunits/:ouid/workshop/:wid', component: WorkshopDetailComponent},

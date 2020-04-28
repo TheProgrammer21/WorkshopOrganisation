@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ObligatoryUnit, ObligatoryunitService } from 'src/app/services/obligatoryunit.service';
+import { ObligatoryUnit, ObligatoryunitService, STATUS } from 'src/app/services/obligatoryunit.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserService } from 'src/app/services/user.service';
 
@@ -10,7 +10,10 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class ObligatoryUnitListComponent {
 
+  public allStatus: Map<number, string[]> = STATUS;
+
   public obligatoryUnits: ObligatoryUnit[];
+  public showStatus: number;
 
   public loading: boolean;
   public error: string;
@@ -22,7 +25,7 @@ export class ObligatoryUnitListComponent {
   ) {
     this.fetchAndInit();
     this.userService.getUser().subscribe(user => {
-      this.loading = user.role === 'admin';
+      this.showAdmin = user.role === 'admin';
     });
   }
 
