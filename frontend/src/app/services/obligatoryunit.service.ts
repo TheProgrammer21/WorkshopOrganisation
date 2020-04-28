@@ -33,6 +33,15 @@ export function PARSE_TO_LOCAL(ou: ObligatoryUnit): LocalObligatoryUnit {
   };
 }
 
+export function PARSE_TO_DATA(ou: LocalObligatoryUnit): ObligatoryUnitData {
+  return {
+    name: ou.name,
+    description: ou.description,
+    startDate: ou.startDate.toString(),
+    endDate: ou.endDate.toString()
+  };
+}
+
 export const STATUS = new Map<number, string[]>([
   [0, ['Unsichtbar', 'Nur Admins - Neu erstellt']],
   [1, ['Versteckt', 'Nur Admins - Alte Events']],
