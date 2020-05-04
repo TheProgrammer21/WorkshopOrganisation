@@ -24,6 +24,7 @@ export class LoginDialogComponent {
 
   public error: string;
   public loading: boolean;
+  public showPassword = false;
 
   constructor(
     public dialogRef: MatDialogRef<LoginDialogComponent>,
@@ -47,6 +48,7 @@ export class LoginDialogComponent {
       }).subscribe(
         res => this.dialogRef.close(true),
         err => {
+          this.password = '';
           this.errorService.handleHttpError(err, new Map([
             [401, {message: undefined}]
           ]));

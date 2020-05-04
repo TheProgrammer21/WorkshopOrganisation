@@ -8,9 +8,12 @@
       <input matInput required [(ngModel)]="username" placeholder="Username">
     </mat-form-field>
     <br>
-    <mat-form-field>
+    <mat-form-field class="input-password">
       <mat-label>Passwort</mat-label>
-      <input matInput required [(ngModel)]="password" type="password" placeholder="********" (keydown.enter)="onLogin()">
+      <input matInput required name="password" [(ngModel)]="password" [type]="showPassword ? 'text' : 'password'" placeholder="********" (keydown.enter)="onLogin()">
+      <button mat-button matSuffix mat-icon-button class="show-password-button" (click)="showPassword = !showPassword">
+        <mat-icon>{{showPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+      </button>
     </mat-form-field>
   </div>
 

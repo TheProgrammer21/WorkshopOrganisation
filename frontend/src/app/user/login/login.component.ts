@@ -34,6 +34,7 @@ export class LoginComponent implements OnInit {
 
   public error: string;
   public loading: boolean;
+  public showPassword = false;
 
   constructor(
     private router: Router,
@@ -62,6 +63,7 @@ export class LoginComponent implements OnInit {
           }
         },
         err => {
+          this.password = '';
           this.errorService.handleHttpError(err, new Map([
             [401, {message: undefined}]
           ]));
