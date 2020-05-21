@@ -13,8 +13,9 @@ const routes: Routes = [
   {path: 'obligatoryunits/new', component: ObligatoryUnitEditComponent},
   {path: 'obligatoryunits/:ouid', component: WorkshopListComponent},
   {path: 'obligatoryunits/:ouid/edit', component: ObligatoryUnitEditComponent},
-  {path: 'obligatoryunits/:ouid/workshop/:wid', component: WorkshopDetailComponent},
-  {path: 'obligatoryunits/:ouid/workshop/:wid/edit', component: WorkshopEditComponent}
+  {path: 'obligatoryunits/:ouid/new', component: WorkshopEditComponent},
+  {path: 'obligatoryunits/:ouid/workshop/:wsid', component: WorkshopDetailComponent},
+  {path: 'obligatoryunits/:ouid/workshop/:wsid/edit', component: WorkshopEditComponent}
 ];
 
 @NgModule({
