@@ -47,8 +47,7 @@ function getWorkshop(req, res) {
         return;
     }
 
-    db.query(res, "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status, \
-                    (SELECT COUNT(*) FROM userworkshop WHERE workshopId = ?) 'currentParticipants' \
+    db.query(res, "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status \
                     FROM workshop w \
                     INNER JOIN obligatoryUnitWorkshop ow ON w.id = ow.workshopId \
                     INNER JOIN obligatoryUnit o ON ow.obligatoryUnitId = o.id \
@@ -59,10 +58,11 @@ function getWorkshop(req, res) {
             } else {
                 if (obligatoryUnit.getAllowedStatus(req.permissions).includes(rows[0].status + "")) {
                     rows.forEach(e => delete e.status); // remove not needed property
-                    db.query(res, `SELECT COUNT(*) "count"
+                    db.query(res, `SELECT uw.userId
                                     FROM userworkshop uw
-                                    WHERE uw.workshopId = ? AND uw.userId = ?;`, [id, req.user], count => {
-                        rows[0].registered = count[0].count !== 0;
+                                    WHERE uw.workshopId = ?;`, [id, req.user], users => {
+                        rows[0].currentParticipants = users.map(e => e.userId);
+                        rows[0].registered = rows[0].currentParticipants.includes(req.user);
                         utils.respondSuccess(rows[0], res);
                     });
                 } else {
