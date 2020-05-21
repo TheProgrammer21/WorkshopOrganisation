@@ -4,20 +4,51 @@ import { ErrorService, HttpErrorTask } from './error.service';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { WorkshopDetailComponent } from '../workshop/workshop-detail/workshop-detail.component';
 
 export interface Workshop extends WorkshopData {
   id: number;
   registered: boolean;
-  currentParticipants: number;
+  currentParticipants: Array<string>;
 }
 
 export interface WorkshopData {
+  obligatoryUnit: number;
   name: string;
   description: string;
   startDate: string;
   duration: number; // Duration in days
   participants: number;
+}
+
+export interface LocalWorkshop {
+  obligatoryUnit: number;
+  name: string;
+  description: string;
+  startDate: Date;
+  duration: number; // Duration in days
+  participants: number;
+}
+
+export function PARSE_TO_LOCAL(ws: Workshop): LocalWorkshop {
+  return {
+    obligatoryUnit: ws.obligatoryUnit,
+    name: ws.name,
+    description: ws.description,
+    startDate: new Date(ws.startDate),
+    duration: ws.duration,
+    participants: ws.participants
+  };
+}
+
+export function PARSE_TO_DATA(ws: LocalWorkshop): WorkshopData {
+  return {
+    obligatoryUnit: ws.obligatoryUnit,
+    name: ws.name,
+    description: ws.description,
+    startDate: ws.startDate.toString(),
+    duration: ws.duration,
+    participants: ws.participants
+  };
 }
 
 @Injectable({
@@ -74,7 +105,7 @@ export class WorkshopService {
     );
   }
 
-  public updateWorkshop(id: number, data: WorkshopDetailComponent): Observable<any> {
+  public updateWorkshop(id: number, data: WorkshopData): Observable<any> {
     return this.http.put(`${this.workshopAddress}/${id}`, data).pipe(
       catchError(err => this.handleError(err))
     );
@@ -93,7 +124,7 @@ export class WorkshopService {
   }
 
   public unregister(id: number): Observable<any> {
-    return this.http.post(`${this.workshopAddress}/${id}/register`, undefined).pipe(
+    return this.http.delete(`${this.workshopAddress}/${id}/unregister`, undefined).pipe(
       catchError(err => this.handleError(err))
     );
   }
