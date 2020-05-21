@@ -1,0 +1,32 @@
+.mat-dialog-content {
+  width: 100%;
+  height: inherit;
+  text-align: center;
+  overflow: hidden;
+}
+
+.forms {
+  padding-top: 10px;
+}
+
+.spinner {
+  height: 95px;
+  vertical-align: middle;
+  padding-top: 50px;
+}
+
+mat-spinner {
+  margin: auto;
+}
+
+.actions {
+  display: block;
+}
+
+.show-password-button {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.input-password {
+  max-width: 180px;
+}

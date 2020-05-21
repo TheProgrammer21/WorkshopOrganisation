@@ -1,0 +1,25 @@
+<mat-card>
+  <mat-card-header>
+    <h2>Login</h2>
+  </mat-card-header>
+  <mat-card-content [@fadeIn]="this.error" [@fadeInRetarded]="this.loading" [@loadingResize]="loading ? 'loading' : 'expanded'">
+    <mat-error>{{error}}</mat-error>
+    <div *ngIf="!loading" class="input-container">
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput required name="username" [(ngModel)]="username" placeholder="Username">
+      </mat-form-field>
+      <br>
+      <mat-form-field class="input-password">
+        <mat-label>Passwort</mat-label>
+        <input matInput required name="password" [(ngModel)]="password" [type]="showPassword ? 'text' : 'password'" placeholder="********" (keydown.enter)="onLogin()">
+        <button mat-button matSuffix mat-icon-button class="show-password-button" (click)="showPassword = !showPassword">
+          <mat-icon>{{showPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+      </mat-form-field>
+
+    </div>
+    <mat-spinner *ngIf="loading" diameter="50"></mat-spinner>
+  </mat-card-content>
+  <button mat-raised-button class="login-button" [disabled]="loading" (click)="onLogin()">Login</button>
+</mat-card>
