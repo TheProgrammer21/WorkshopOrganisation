@@ -1,7 +1,7 @@
 
 <div style="height: 15px;"></div>
 <mat-error *ngIf="error">{{error}}</mat-error>
-<div *ngIf="!error" [@fadeInRetarded]="workshops">
+<div *ngIf="!error && workshops" [@fadeInRetarded]="workshops">
   <mat-card *ngFor="let workshop of workshops">
     <button mat-button class="card-header-button">
       <mat-card-header routerLink="/obligatoryunits/{{ouid}}/workshop/{{workshop.id}}">

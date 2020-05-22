@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Workshop, WorkshopService } from 'src/app/services/workshop.service';
@@ -23,7 +23,6 @@ export class WorkshopListComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private wsService: WorkshopService,
     private userService: UserService
   ) {
@@ -40,7 +39,6 @@ export class WorkshopListComponent {
     this.wsService.getWorkshopsForObligatoryUnit(this.ouid).subscribe(
       res => {
         this.workshops = res;
-        console.log(this.workshops);
         this.loading = false;
       },
       err => {

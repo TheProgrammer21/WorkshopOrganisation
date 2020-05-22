@@ -1,5 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ObligatoryunitService, LocalObligatoryUnit, PARSE_TO_LOCAL, STATUS, PARSE_TO_DATA } from 'src/app/services/obligatoryunit.service';
+import {
+  ObligatoryunitService,
+  LocalObligatoryUnit,
+  PARSE_TO_LOCAL, STATUS,
+  PARSE_TO_DATA,
+  ObligatoryUnitUpdateData
+} from 'src/app/services/obligatoryunit.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 
@@ -57,7 +63,9 @@ export class ObligatoryUnitEditComponent implements OnInit {
 
   public onSave(): void {
     if (this.ouid) {
-      this.ouService.updateObligatoryUnit(this.ouid, PARSE_TO_DATA(this.obligatoryUnit)).subscribe(
+      const data = PARSE_TO_DATA(this.obligatoryUnit) as ObligatoryUnitUpdateData;
+      data.status = this.status;
+      this.ouService.updateObligatoryUnit(this.ouid, data).subscribe(
         res => this.fetchObligatoryUnit()
       );
     } else {
