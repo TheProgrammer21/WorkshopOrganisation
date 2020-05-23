@@ -89,10 +89,12 @@ function getObligatoryUnit(req, res) {
             let status = rows[0].status;
             if (status === obligatoryUnit.hidden || status === obligatoryUnit.invisible) { // hidden, only admins can see
                 if (auth.translatePermission(req.permissions) === "admin") {
-                    utils.respondSuccess(rows[0], res)
+                    utils.respondSuccess(rows[0], res);
                 } else {
-                    utils.respondError("Unauthorized", res, 401);
+                    utils.respondError("Forbidden", res, 403);
                 }
+            } else {
+                utils.respondSuccess(rows[0], res);
             }
         }
     });
