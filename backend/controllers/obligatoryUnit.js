@@ -24,16 +24,13 @@ function createObligatoryUnit(req, res) {
     let name = req.body.name;
     let description = req.body.description;
 
-    if (!utils.isSpecified(name) || !utils.isSpecified(description)) {
-        utils.respondError("Invalid body format", res, 400);
-        return;
-    } else if (startDate == "Invalid Date" || endDate == "Invalid Date") {
-        utils.respondError("Invalid start or end date", res, 400);
-        return;
-    } else if (name.length > 64 || description.length > 512) {
-        utils.respondError("Name or description too long", res, 400);
-        return;
-    }
+    if(!check(req.body, res, {
+        name: {type:"string", required:true, maxLength:64},
+        description: {type:"string", required:true, maxLength: 512},
+        status: {type:"integer", required:true, min:0, max:3},
+        startDate: {type:"date", required:true},
+        endDate: {type:"date", required:true}
+    })) return;
 
     db.query(res, "INSERT INTO obligatoryUnit (startDate, endDate, name, description, status) VALUES (?, ?, ?, ?, ?);", [startDate, endDate, name, description, 0], rows => {
         utils.respondSuccess({ id: rows.insertId }, res, 201);
@@ -47,23 +44,16 @@ function updateObligatoryUnit(req, res) {
     let name = req.body.name;
     let description = req.body.description;
     let status = req.body.status;
+    req.body.id = id; // For check() method
 
-    if (!utils.isNumber(id)) {
-        utils.respondError("Invalid id", res, 400);
-        return;
-    } else if (!utils.isSpecified(name) || !utils.isSpecified(description) || !utils.isNumber(status)) {
-        utils.respondError("Invalid body format", res, 400);
-        return;
-    } else if (startDate == "Invalid Date" || endDate == "Invalid Date") {
-        utils.respondError("Invalid start or end date", res, 400);
-        return;
-    } else if (name.length > 64 || description.length > 512) {
-        utils.respondError("Name or description too long", res, 400);
-        return;
-    } else if (parseInt(status) < 0 || parseInt(status) > 3) {
-        utils.respondError("Invalid status code", res, 400);
-        return;
-    }
+    if(!check(req.body, res, {
+        id: {type:"integer", required:true},
+        name: {type:"string", required:true, maxLength:64},
+        description: {type:"string", required:true, maxLength: 512},
+        status: {type:"integer", required:true, min:0, max:3},
+        startDate: {type:"date", required:true},
+        endDate: {type:"date", required:true}
+    })) return;
 
     db.query(res, "UPDATE obligatoryUnit SET startDate = ?, endDate = ?, name = ?, description = ?, status = ? WHERE id = ?;", [startDate, endDate, name, description, status, id], rows => {
         if (rows.effectedRows === 0) {
@@ -77,10 +67,9 @@ function updateObligatoryUnit(req, res) {
 function getObligatoryUnit(req, res) {
     id = req.params.id;
 
-    if (!utils.isNumber(id)) {
-        utils.respondError("Invalid id", res, 400);
-        return;
-    }
+    if(!check({id:id}, res, {
+        id: {type:"integer", required:true}
+    })) return;
 
     db.query(res, "SELECT * FROM obligatoryUnit WHERE id = ?;", [id], rows => {
         if (rows.length == 0) {

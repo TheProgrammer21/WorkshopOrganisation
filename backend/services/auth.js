@@ -50,11 +50,9 @@ function loggedIn(req, res, next) {
 }
 
 function identify(req, res, next) {
-    let token = req.get('Authorization') || ''; // that split doesn't fail in next line
+    let token = (req.get('Authorization') || "").split(" ")[1]; // remove the Bearer word at the beginning
     req.user = undefined;
     req.permissions = undefined;
-
-    token = token.split(' ')[1]; //remove the Bearer word at the beginning
 
     if (token === undefined) { // Bearer at the beginning is missing
         next();
@@ -89,11 +87,7 @@ function identify(req, res, next) {
 }
 
 function translatePermission(permission) { // translates number into string
-    switch (permission) {
-        case 0: return 'student';
-        case 1: return 'admin';
-        default: return undefined;
-    }
+    return ["student", "admin"][permission];
 }
 
 module.exports = {
