@@ -30,7 +30,7 @@ export class WorkshopDetailComponent implements OnInit {
     private wsService: WorkshopService,
     private ouService: ObligatoryunitService,
     private userService: UserService
-  ) { 
+  ) {
     this.ouid = +this.route.snapshot.paramMap.get('ouid');
     this.wsid = +this.route.snapshot.paramMap.get('wsid');
     this.userService.getUser().subscribe(user => {
@@ -49,8 +49,8 @@ export class WorkshopDetailComponent implements OnInit {
         res => {
           this.workshop = res;
           this.ouService.getObligatoryUnit(this.ouid).subscribe(
-            res => {
-              this.obligatoryUnit = res;
+            res2 => {
+              this.obligatoryUnit = res2;
             },
             err => {
               if (err.status === 404) {
@@ -74,7 +74,7 @@ export class WorkshopDetailComponent implements OnInit {
         this.fetchAndInit();
       },
       err => {
-        alert("Error: " + (err as HttpErrorResponse).error.err);
+        alert('Error: ' + (err as HttpErrorResponse).error.err);
       }
     );
   }
@@ -85,7 +85,7 @@ export class WorkshopDetailComponent implements OnInit {
         this.fetchAndInit();
       },
       err => {
-        alert("Error: " + (err as HttpErrorResponse).error.err);
+        alert('Error: ' + (err as HttpErrorResponse).error.err);
       }
     );
   }

@@ -24,6 +24,10 @@ export interface LocalObligatoryUnit {
   description: string;
 }
 
+export interface ObligatoryUnitUpdateData extends ObligatoryUnitData {
+  status: number;
+}
+
 export function PARSE_TO_LOCAL(ou: ObligatoryUnit): LocalObligatoryUnit {
   return {
     name: ou.name,
@@ -108,7 +112,7 @@ export class ObligatoryunitService {
     );
   }
 
-  public updateObligatoryUnit(id: number, data: ObligatoryUnitData): Observable<any> {
+  public updateObligatoryUnit(id: number, data: ObligatoryUnitUpdateData): Observable<any> {
     return this.http.put<any>(`${this.obligatoryUnitAddress}/${id}`, data).pipe(
       catchError(err => this.handleError(err))
     );

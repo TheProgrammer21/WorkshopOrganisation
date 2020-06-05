@@ -52,7 +52,7 @@ function getWorkshop(req, res) {
                     INNER JOIN obligatoryUnitWorkshop ow ON w.id = ow.workshopId \
                     INNER JOIN obligatoryUnit o ON ow.obligatoryUnitId = o.id \
                     WHERE w.id = ?;",
-        [id, id], rows => {
+        [id], rows => {
             if (rows.length === 0) {
                 utils.respondError("Not found", res, 404);
             } else {
