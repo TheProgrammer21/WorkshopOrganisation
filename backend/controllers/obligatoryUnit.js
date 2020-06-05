@@ -28,7 +28,6 @@ function createObligatoryUnit(req, res) {
     if (checker.check(req.body, res, {
         name: { type: "string", required: true, maxLength: 64 },
         description: { type: "string", required: true, maxLength: 512 },
-        status: { type: "integer", required: true, min: 0, max: 3 },
         startDate: { type: "date", required: true },
         endDate: { type: "date", required: true }
     })) return;
