@@ -1,6 +1,7 @@
 var db = require('../services/db');
 var utils = require('../services/utils');
 var auth = require('../services/auth');
+var checker = require('expressjs-check');
 
 var obligatoryUnit = {
     invisible: 0, // just created, still working on - not shown to anyone but admins
@@ -24,12 +25,12 @@ function createObligatoryUnit(req, res) {
     let name = req.body.name;
     let description = req.body.description;
 
-    if(!check(req.body, res, {
-        name: {type:"string", required:true, maxLength:64},
-        description: {type:"string", required:true, maxLength: 512},
-        status: {type:"integer", required:true, min:0, max:3},
-        startDate: {type:"date", required:true},
-        endDate: {type:"date", required:true}
+    if (checker.check(req.body, res, {
+        name: { type: "string", required: true, maxLength: 64 },
+        description: { type: "string", required: true, maxLength: 512 },
+        status: { type: "integer", required: true, min: 0, max: 3 },
+        startDate: { type: "date", required: true },
+        endDate: { type: "date", required: true }
     })) return;
 
     db.query(res, "INSERT INTO obligatoryUnit (startDate, endDate, name, description, status) VALUES (?, ?, ?, ?, ?);", [startDate, endDate, name, description, 0], rows => {
@@ -46,13 +47,13 @@ function updateObligatoryUnit(req, res) {
     let status = req.body.status;
     req.body.id = id; // For check() method
 
-    if(!check(req.body, res, {
-        id: {type:"integer", required:true},
-        name: {type:"string", required:true, maxLength:64},
-        description: {type:"string", required:true, maxLength: 512},
-        status: {type:"integer", required:true, min:0, max:3},
-        startDate: {type:"date", required:true},
-        endDate: {type:"date", required:true}
+    if (checker.check(req.body, res, {
+        id: { type: "integer", required: true },
+        name: { type: "string", required: true, maxLength: 64 },
+        description: { type: "string", required: true, maxLength: 512 },
+        status: { type: "integer", required: true, min: 0, max: 3 },
+        startDate: { type: "date", required: true },
+        endDate: { type: "date", required: true }
     })) return;
 
     db.query(res, "UPDATE obligatoryUnit SET startDate = ?, endDate = ?, name = ?, description = ?, status = ? WHERE id = ?;", [startDate, endDate, name, description, status, id], rows => {
@@ -67,8 +68,8 @@ function updateObligatoryUnit(req, res) {
 function getObligatoryUnit(req, res) {
     id = req.params.id;
 
-    if(!check({id:id}, res, {
-        id: {type:"integer", required:true}
+    if (checker.check({ id: id }, res, {
+        id: { type: "integer", required: true }
     })) return;
 
     db.query(res, "SELECT * FROM obligatoryUnit WHERE id = ?;", [id], rows => {

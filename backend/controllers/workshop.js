@@ -1,6 +1,7 @@
 var db = require('../services/db');
 var utils = require('../services/utils');
 var obligatoryUnit = require('./obligatoryUnit');
+var checker = require('expressjs-check');
 
 function updateWorkshop(req, res) {
     let id = req.params.id;
@@ -11,15 +12,15 @@ function updateWorkshop(req, res) {
     let participants = req.body.participants;
     req.body.id = id; // For check() method
 
-    if(!check(req.body, res, {
-        id: {type:"integer", required:true},
-        name: {type:"string", required:true, maxLength:64},
-        description: {type:"string", required:true, maxLength: 512},
-        status: {type:"integer", required:true, min:0, max:3},
-        duration: {type: "integer", required:true, min:1},
-        participants: {type:"integer", required:true, min:1},
-        startDate: {type:"date", required:true},
-        endDate: {type:"date", required:true}
+    if (checker.check(req.body, res, {
+        id: { type: "integer", required: true },
+        name: { type: "string", required: true, maxLength: 64 },
+        description: { type: "string", required: true, maxLength: 512 },
+        status: { type: "integer", required: true, min: 0, max: 3 },
+        duration: { type: "integer", required: true, min: 1 },
+        participants: { type: "integer", required: true, min: 1 },
+        startDate: { type: "date", required: true },
+        endDate: { type: "date", required: true }
     })) return;
 
     db.query(res, "UPDATE workshop SET name = ?, description = ?, startDate = ?, duration = ?, participants = ? WHERE id = ?;", [name, description, startDate, duration, participants, id], rows => {
@@ -34,8 +35,8 @@ function updateWorkshop(req, res) {
 function getWorkshop(req, res) {
     let id = req.params.id;
 
-    if(!check({id:id}, res, {
-        id: {type:"integer", required:true}
+    if (checker.check({ id: id }, res, {
+        id: { type: "integer", required: true }
     })) return;
 
     db.query(res, "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status \
@@ -66,8 +67,8 @@ function getWorkshop(req, res) {
 function deleteWorkshop(req, res) {
     let id = req.params.id;
 
-    if(!check({id:id}, res, {
-        id: {type:"integer", required:true}
+    if (checker.check({ id: id }, res, {
+        id: { type: "integer", required: true }
     })) return;
 
     db.query(res, "DELETE FROM workshop WHERE id = ?;", [id], rows => {
@@ -87,15 +88,15 @@ function createWorkshop(req, res) {
     let duration = req.body.duration;
     let participants = req.body.participants;
 
-    if(!check(req.body, res, {
-        id: {type:"integer", required:true},
-        name: {type:"string", required:true, maxLength:64},
-        description: {type:"string", required:true, maxLength: 512},
-        status: {type:"integer", required:true, min:0, max:3},
-        duration: {type: "integer", required:true, min:1},
-        participants: {type:"integer", required:true, min:1},
-        startDate: {type:"date", required:true},
-        endDate: {type:"date", required:true}
+    if (checker.check(req.body, res, {
+        id: { type: "integer", required: true },
+        name: { type: "string", required: true, maxLength: 64 },
+        description: { type: "string", required: true, maxLength: 512 },
+        status: { type: "integer", required: true, min: 0, max: 3 },
+        duration: { type: "integer", required: true, min: 1 },
+        participants: { type: "integer", required: true, min: 1 },
+        startDate: { type: "date", required: true },
+        endDate: { type: "date", required: true }
     })) return;
 
     db.query(res, "SELECT createWorkshop(?, ?, ?, ?, ?, ?) \"id\"", [id, name, description, startDate, duration, participants], rows => {
@@ -109,8 +110,8 @@ function createWorkshop(req, res) {
 function register(req, res) {
     let id = req.params.id; // workshop id
 
-    if(!check({id:id}, res, {
-        id: {type:"integer", required:true}
+    if (checker.check({ id: id }, res, {
+        id: { type: "integer", required: true }
     })) return;
 
     db.query(res, "CALL registerWorkshop(?, ?)", [id, req.user], rows => {
