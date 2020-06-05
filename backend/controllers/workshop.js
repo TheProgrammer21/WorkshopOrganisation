@@ -91,7 +91,7 @@ function createWorkshop(req, res) {
     let participants = req.body.participants;
 
     if (checker.check(req.body, res, {
-        id: { type: "integer", required: true },
+        obligatoryUnit: { type: "integer", required: true },
         name: { type: "string", required: true, maxLength: 64 },
         description: { type: "string", required: true, maxLength: 512 },
         duration: { type: "integer", required: true, min: 1 },
