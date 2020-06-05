@@ -55,6 +55,10 @@ function updateObligatoryUnit(req, res) {
         endDate: { type: "date", required: true }
     })) return;
 
+    if (checker.check({ id: id }, res, {
+        id: { type: "integer", required: true }
+    })) return;
+
     db.query(res, "UPDATE obligatoryUnit SET startDate = ?, endDate = ?, name = ?, description = ?, status = ? WHERE id = ?;", [startDate, endDate, name, description, status, id], rows => {
         if (rows.effectedRows === 0) {
             utils.respondError("Obligatory Unit not found", res, 404);

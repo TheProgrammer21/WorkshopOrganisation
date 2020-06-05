@@ -13,14 +13,16 @@ function updateWorkshop(req, res) {
     req.body.id = id; // For check() method
 
     if (checker.check(req.body, res, {
-        id: { type: "integer", required: true },
         name: { type: "string", required: true, maxLength: 64 },
         description: { type: "string", required: true, maxLength: 512 },
-        status: { type: "integer", required: true, min: 0, max: 3 },
         duration: { type: "integer", required: true, min: 1 },
         participants: { type: "integer", required: true, min: 1 },
         startDate: { type: "date", required: true },
         endDate: { type: "date", required: true }
+    })) return;
+
+    if (checker.check({ id: id }, res, {
+        id: { type: "integer", required: true }
     })) return;
 
     db.query(res, "UPDATE workshop SET name = ?, description = ?, startDate = ?, duration = ?, participants = ? WHERE id = ?;", [name, description, startDate, duration, participants, id], rows => {
@@ -92,11 +94,8 @@ function createWorkshop(req, res) {
         id: { type: "integer", required: true },
         name: { type: "string", required: true, maxLength: 64 },
         description: { type: "string", required: true, maxLength: 512 },
-        status: { type: "integer", required: true, min: 0, max: 3 },
         duration: { type: "integer", required: true, min: 1 },
-        participants: { type: "integer", required: true, min: 1 },
-        startDate: { type: "date", required: true },
-        endDate: { type: "date", required: true }
+        participants: { type: "integer", required: true, min: 1 }
     })) return;
 
     db.query(res, "SELECT createWorkshop(?, ?, ?, ?, ?, ?) \"id\"", [id, name, description, startDate, duration, participants], rows => {
