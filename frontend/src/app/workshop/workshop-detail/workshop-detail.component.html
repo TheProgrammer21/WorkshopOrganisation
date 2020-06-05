@@ -1,0 +1,90 @@
+
+<div style="height: 15px;"></div>
+<mat-error *ngIf="error">{{error}}</mat-error>
+<div *ngIf="!error && workshop && obligatoryUnit" [@fadeInRetarded]="workshop">
+  <mat-card>
+    <mat-card-header>
+      <h3>{{workshop.name}}</h3>
+    </mat-card-header>
+    <mat-card-content>
+      <table>
+        <tr>
+          <td>
+            <mat-icon>event</mat-icon>
+          </td>
+          <td>
+            <span>{{workshop.startDate | date:"dd. MMM"}}</span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <mat-icon>date_range</mat-icon>
+          </td>
+          <td>
+            <span>{{workshop.duration}} Tag{{workshop.duration != 1 ? "e" : ""}}</span>
+          </td>
+        </tr>
+        <tr>
+            <td>
+              <mat-icon>assignment_ind</mat-icon>
+            </td>
+            <td>
+              <span>{{workshop.currentParticipants.length}} derzeit angemeldet</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <mat-icon>group</mat-icon>
+            </td>
+            <td>
+              <span>{{workshop.participants - workshop.currentParticipants.length}} Plätze frei</span>
+            </td>
+        </tr>
+      </table>
+      <mat-divider></mat-divider>
+      <p>{{workshop.description}}</p>
+    </mat-card-content>
+  </mat-card>
+  <div style="height: 15px;"></div>
+    <div *ngIf="obligatoryUnit.status === 2">
+        <div *ngIf="!workshop.registered">
+            <button (click)="registerForWorkshop()" mat-raised-button style="width: 100%;">
+            <mat-icon>person</mat-icon> Anmelden
+            </button>
+        </div>
+        <div *ngIf="workshop.registered">
+            <button (click)="unregisterFromWorkshop()" mat-raised-button style="width: 100%;">
+            <mat-icon>how_to_reg</mat-icon> Angemeldet
+            </button>
+        </div>
+    </div>
+    <div *ngIf="obligatoryUnit.status !== 2">
+        <div *ngIf="!workshop.registered">
+            <button disabled mat-raised-button style="width: 100%;">
+            <mat-icon>person</mat-icon> Anmelden
+            </button>
+        </div>
+        <div *ngIf="workshop.registered">
+            <button disabled mat-raised-button style="width: 100%;">
+            <mat-icon>how_to_reg</mat-icon> Angemeldet
+            </button>
+        </div>
+    </div>
+
+    <div style="height: 15px;"></div>
+
+    <mat-card *ngIf="showAdmin">
+        <mat-card-header>
+            <h3>Registrierte User</h3>
+        </mat-card-header>
+        <mat-card-content>
+            <table>
+                <div *ngFor="let username of workshop.currentParticipants">
+                    <tr>
+                        {{username}}
+                    </tr>
+                </div>
+            </table>
+        </mat-card-content>
+    </mat-card>
+</div>

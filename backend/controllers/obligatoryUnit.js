@@ -23,7 +23,6 @@ function createObligatoryUnit(req, res) {
     let endDate = new Date(Date.parse(req.body.startDate));
     let name = req.body.name;
     let description = req.body.description;
-    let status = req.body.status;
 
     if(!check(req.body, res, {
         name: {type:"string", required:true, maxLength:64},
@@ -33,7 +32,7 @@ function createObligatoryUnit(req, res) {
         endDate: {type:"date", required:true}
     })) return;
 
-    db.query(res, "INSERT INTO obligatoryUnit (startDate, endDate, name, description, status) VALUES (?, ?, ?, ?, ?);", [startDate, endDate, name, description, status], rows => {
+    db.query(res, "INSERT INTO obligatoryUnit (startDate, endDate, name, description, status) VALUES (?, ?, ?, ?, ?);", [startDate, endDate, name, description, 0], rows => {
         utils.respondSuccess({ id: rows.insertId }, res, 201);
     });
 }
@@ -79,10 +78,12 @@ function getObligatoryUnit(req, res) {
             let status = rows[0].status;
             if (status === obligatoryUnit.hidden || status === obligatoryUnit.invisible) { // hidden, only admins can see
                 if (auth.translatePermission(req.permissions) === "admin") {
-                    utils.respondSuccess(rows[0], res)
+                    utils.respondSuccess(rows[0], res);
                 } else {
-                    utils.respondError("Unauthorized", res, 401);
+                    utils.respondError("Forbidden", res, 403);
                 }
+            } else {
+                utils.respondSuccess(rows[0], res);
             }
         }
     });
@@ -95,7 +96,9 @@ function getAllObligatoryUnits(req, res) {
     if (status === undefined) { // set status to send back all
         status = ["0", "1", "2", "3"];
     } else {
-        status = status.split(',');
+        if (typeof (status) === "string") {
+            status = [status];
+        }
         if (!status.every(utils.isNumber)) {
             utils.respondError("Invalid status filter", res, 400);
             return;
@@ -108,7 +111,6 @@ function getAllObligatoryUnits(req, res) {
     status = status.filter(x => allowedStatus.includes(x));
 
     if (status.length === 0) { // there are no units that this user could possibly see because of permissions
-        console.log("hier");
         utils.respondError("Unauthorized", res, 401);
         return;
     }
@@ -143,7 +145,8 @@ function getAllWorkshopsForObligatoryUnit(req, res) {
         return;
     }
 
-    let queryString = "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status \
+    let queryString = "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status, \
+                        (SELECT COUNT(*) FROM userworkshop WHERE workshopId = w.id) 'currentParticipants' \
                         FROM obligatoryUnitWorkshop ow \
                         INNER JOIN workshop w ON ow.workshopId = w.id \
                         INNER JOIN obligatoryUnit o ON o.id = ow.obligatoryUnitId \

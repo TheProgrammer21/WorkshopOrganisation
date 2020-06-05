@@ -38,7 +38,8 @@ function getWorkshop(req, res) {
         id: {type:"integer", required:true}
     })) return;
 
-    db.query(res, "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status FROM workshop w \
+    db.query(res, "SELECT w.id, w.name, w.description, w.startDate, w.duration, w.participants, o.status \
+                    FROM workshop w \
                     INNER JOIN obligatoryUnitWorkshop ow ON w.id = ow.workshopId \
                     INNER JOIN obligatoryUnit o ON ow.obligatoryUnitId = o.id \
                     WHERE w.id = ?;",
@@ -48,7 +49,13 @@ function getWorkshop(req, res) {
             } else {
                 if (obligatoryUnit.getAllowedStatus(req.permissions).includes(rows[0].status + "")) {
                     rows.forEach(e => delete e.status); // remove not needed property
-                    utils.respondSuccess(rows[0], res);
+                    db.query(res, `SELECT uw.userId
+                                    FROM userworkshop uw
+                                    WHERE uw.workshopId = ?;`, [id, req.user], users => {
+                        rows[0].currentParticipants = users.map(e => e.userId);
+                        rows[0].registered = rows[0].currentParticipants.includes(req.user);
+                        utils.respondSuccess(rows[0], res);
+                    });
                 } else {
                     utils.respondError("Unauthorized", res, 401);
                 }
@@ -106,17 +113,55 @@ function register(req, res) {
         id: {type:"integer", required:true}
     })) return;
 
-    db.query(res, "SELECT COUNT(*) AS 'amount', participants FROM workshopUser INNER JOIN workshop ON workshopId = id WHERE workshopId = ?;", [id], rows => {
-        if (rows[0].amount >= rows[0].participants) { // if the maximum amount of participants is reached yet
-            utils.respondError("Maximum participants for workshop reached", res, 409);
-        } else {
-            db.query(res, "CALL registerWorkshop(?, ?)", [id, req.user], rows => {
-                // Todo
-            }, err => {
-                // Todo
-            })
+    db.query(res, "CALL registerWorkshop(?, ?)", [id, req.user], rows => {
+        utils.respondSuccess(undefined, res, 200);
+    }, err => {
+        switch (err.errno) {
+            case 1643:
+                utils.respondError("Not found", res, 404);
+                break;
+            case 45000:
+                utils.respondError("It is not possible to change the registration status for this workshop at the moment", res, 409);
+                break;
+            case 45001:
+                utils.respondError("The maximum amount of participants is reached", res, 409);
+                break;
+            case 1062:
+            case 45002:
+                utils.respondError("User is already registered for this workshop", res, 409);
+                break;
+            case 45003:
+                utils.respondError("The user is registered for another workshop at this time", res, 409);
+                break;
+
         }
-    })
+    });
+}
+
+// to undo registration for a workshop
+function unregister(req, res) {
+    let id = req.params.id;
+
+    if (!utils.isNumber(id)) {
+        utils.respondSuccess("Invalid id", res, 400);
+        return;
+    }
+
+    db.query(res, "CALL unregisterFromWorkshop(?, ?);", [id, req.user], rows => {
+        utils.respondSuccess(undefined, res, 200);
+    }, err => {
+        switch (err.errno) {
+            case 1643:
+                utils.respondError("Not found", res, 404);
+                break;
+            case 45000:
+                utils.respondError("It is not possible to change the registration status for this workshop at the moment", res, 409);
+                break;
+            case 45001:
+                utils.respondError("User has not registered for this workshop", res, 409);
+                break;
+        }
+    });
 }
 
 module.exports = {
@@ -124,5 +169,6 @@ module.exports = {
     updateWorkshop: updateWorkshop,
     deleteWorkshop: deleteWorkshop,
     createWorkshop: createWorkshop,
-    register: register
+    register: register,
+    unregister: unregister
 }

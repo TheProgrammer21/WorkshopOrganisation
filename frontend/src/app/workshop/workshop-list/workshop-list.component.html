@@ -1,0 +1,48 @@
+
+<div style="height: 15px;"></div>
+<mat-error *ngIf="error">{{error}}</mat-error>
+<div *ngIf="!error && workshops" [@fadeInRetarded]="workshops">
+  <mat-card *ngFor="let workshop of workshops">
+    <button mat-button class="card-header-button">
+      <mat-card-header routerLink="/obligatoryunits/{{ouid}}/workshop/{{workshop.id}}">
+        <h3>{{workshop.name}}</h3>
+      </mat-card-header>
+    </button>
+    <mat-card-content routerLink="/obligatoryunits/{{ouid}}/workshop/{{workshop.id}}">
+      <table>
+        <tr>
+          <td>
+            <mat-icon>event</mat-icon>
+          </td>
+          <td>
+            <span>{{workshop.startDate | date:"dd. MMM"}}</span>
+          </td>
+          <td>
+            <mat-icon>date_range</mat-icon>
+          </td>
+          <td>
+            <span>{{workshop.duration}} Tag{{workshop.duration != 1 ? "e" : ""}}</span>
+          </td>
+        </tr>
+      </table>
+      <mat-divider></mat-divider>
+      <p>{{workshop.description}}</p>
+    </mat-card-content>
+    <mat-card-footer *ngIf="showAdmin" class="admin-tools-footer">
+      <mat-divider></mat-divider>
+      <button routerLink="/obligatoryunits/{{ouid}}/workshop/{{workshop.id}}/edit" mat-icon-button>
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button (click)="deleteWS(workshop)">
+        <mat-icon>delete_forever</mat-icon>
+      </button>
+    </mat-card-footer>
+  </mat-card>
+</div>
+
+<div style="height: 15px;"></div>
+<div *ngIf="showAdmin">
+  <button routerLink="new" mat-raised-button style="width: 100%;">
+    <mat-icon>add</mat-icon> Neuer Workshop
+  </button>
+</div>
