@@ -5,20 +5,18 @@
 }
 
 img {
-  max-height: 100%;
+  display: inline-block;
+  max-height: 10em;
 }
 
 .header-container {
   text-align: center;
-  width: fit-content;
   padding: 15px 0px 15px 0px;
-  height: 10%;
   width: 100%;
 }
 
 .content-container {
-  padding-top: 15px;
+  padding: 15px;
   width: fit-content;
   margin: auto;
-  padding-bottom: 50px;
 }
