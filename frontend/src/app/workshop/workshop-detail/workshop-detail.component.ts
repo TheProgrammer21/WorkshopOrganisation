@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Workshop, WorkshopService } from 'src/app/services/workshop.service';
-import { ObligatoryUnit, ObligatoryunitService, STATUS } from 'src/app/services/obligatoryunit.service';
+import { ObligatoryUnit, ObligatoryunitService } from 'src/app/services/obligatoryunit.service';
 import { UserService } from 'src/app/services/user.service';
 import { FadeInRetarded } from 'src/app/animations/animations';
 
@@ -26,7 +26,6 @@ export class WorkshopDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private wsService: WorkshopService,
     private ouService: ObligatoryunitService,
     private userService: UserService
