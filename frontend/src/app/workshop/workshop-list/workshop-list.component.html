@@ -2,12 +2,12 @@
 <span *ngIf="notice">{{notice}}</span>
 <div *ngIf="!error && workshops" [@fadeInRetarded]="workshops">
   <mat-card *ngFor="let workshop of workshops">
-    <button mat-button class="card-header-button">
-      <mat-card-header routerLink="/obligatoryunits/{{ouid}}/workshop/{{workshop.id}}">
+    <button mat-button class="card-header-button" routerLink="/obligatoryunits/{{ouid}}/workshop/{{workshop.id}}">
+      <mat-card-header>
         <h3>{{workshop.name}}</h3>
       </mat-card-header>
     </button>
-    <mat-card-content routerLink="/obligatoryunits/{{ouid}}/workshop/{{workshop.id}}">
+    <mat-card-content>
       <table>
         <tr>
           <td>

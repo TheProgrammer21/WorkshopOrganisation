@@ -40,6 +40,14 @@
             <span>{{obligatoryUnit.endDate | date:"dd. MMM"}}</span>
           </td>
         </tr>
+        <tr *ngIf="showAdmin" matTooltip="{{allStatus.get(obligatoryUnit.status)[1]}}">
+          <td>
+            <mat-icon>info</mat-icon>
+          </td>
+          <td>
+            <span>{{allStatus.get(obligatoryUnit.status)[0]}}</span>
+          </td>
+        </tr>
       </table>
       <mat-divider></mat-divider>
       <p>{{obligatoryUnit.description}}</p>
