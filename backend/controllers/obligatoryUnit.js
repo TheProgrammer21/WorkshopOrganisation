@@ -115,7 +115,7 @@ function getAllObligatoryUnits(req, res) {
     status = status.filter(x => allowedStatus.includes(x));
 
     if (status.length === 0) { // there are no units that this user could possibly see because of permissions
-        utils.respondError("Unauthorized", res, 401);
+        utils.respondError("Forbidden", res, 403);
         return;
     }
 
@@ -157,16 +157,12 @@ function getAllWorkshopsForObligatoryUnit(req, res) {
                         WHERE obligatoryUnitId = ?;"
 
     db.query(res, queryString, [id], rows => {
-        if (rows.length === 0) {
-            utils.respondError("Not found", res, 404);
+        // is the use authorized to see the obligatory unit
+        if (getAllowedStatus(req.permissions).includes("" + rows[0].status)) {
+            rows.forEach(e => delete e.status); // not needed by client
+            utils.respondSuccess(rows, res);
         } else {
-            // is the use authorized to see the obligatory unit
-            if (getAllowedStatus(req.permissions).includes("" + rows[0].status)) {
-                rows.forEach(e => delete e.status); // not needed by client
-                utils.respondSuccess(rows, res);
-            } else {
-                utils.respondError("Unauthorized", res, 401);
-            }
+            utils.respondError("Forbidden", res, 403);
         }
     });
 }
