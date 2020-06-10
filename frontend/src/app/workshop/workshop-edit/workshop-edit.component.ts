@@ -3,6 +3,7 @@ import { WorkshopService, PARSE_TO_LOCAL, PARSE_TO_DATA, LocalWorkshop } from 's
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { DialogService } from 'src/app/services/dialog.service';
+import { ErrorService } from 'src/app/services/error.service';
 
 @Component({
   selector: 'app-workshop-edit',
@@ -22,7 +23,8 @@ export class WorkshopEditComponent implements OnInit {
     private router: Router,
     private location: Location,
     private wsService: WorkshopService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private errorService: ErrorService
   ) {
     this.ouid = +this.route.snapshot.paramMap.get('ouid');
     this.wsid = +this.route.snapshot.paramMap.get('wsid');
@@ -58,15 +60,50 @@ export class WorkshopEditComponent implements OnInit {
   }
 
   public onSave(): void {
-    if (this.wsid) {
-      this.wsService.updateWorkshop(this.wsid, PARSE_TO_DATA(this.workshop)).subscribe(
-        res => this.fetchWorkshop()
-      );
-    } else {
-      this.wsService.createWorkshop(PARSE_TO_DATA(this.workshop)).subscribe(
-        res => this.router.navigateByUrl(`/obligatoryunits/${this.ouid}/workshop/${res.id}`)
-      );
+    if (this.validateInputs) {
+      if (this.wsid) {
+        this.wsService.updateWorkshop(this.wsid, PARSE_TO_DATA(this.workshop)).subscribe(
+          res => this.location.back()
+        );
+      } else {
+        this.wsService.createWorkshop(PARSE_TO_DATA(this.workshop)).subscribe(
+          res => this.router.navigateByUrl(`/obligatoryunits/${this.ouid}/workshop/${res.id}`)
+        );
+      }
     }
+  }
+
+  private validateInputs(): boolean {
+    let error;
+
+    if (!this.workshop.name) { // Name prüfen v
+      error = 'Bitte Name eingeben';
+    } else if (this.workshop.name.length > 64) {
+      error = 'Bitte Name mit maximal 64 Zeichen wählen';
+    } else if (!this.workshop.description) { // Beschreibung prüfen v
+      error = 'Bitte Beschreibung eingeben';
+    } else if (this.workshop.description.length > 512) {
+      error = 'Bitte Beschreibung mit maximal 512 Zeichen wählen';
+    } else if (!this.workshop.startDate) { // Beginndatum prüfen
+      error = 'Bitte Beginndatum eingeben';
+    } else if (!this.workshop.duration) { // Dauer prüfen v
+      error = 'Bitte Dauer eingeben';
+    } else if (this.workshop.duration < 1) {
+      error = 'Bitte eine Dauer größer 0 wählen';
+    } else if (this.workshop.duration !== Math.floor(this.workshop.duration)) { // Ganzzahligkeit prüfen
+      error = 'Bitte Ganzzahlige Dauer wählen';
+    } else if (!this.workshop.participants) { // Teilnehmerzahl prüfen v
+      error = 'Bitte maximale Teilnehmerzahl eingeben';
+    } else if (this.workshop.participants < 1) {
+      error = 'Bitte maximale Teilnehmerzahl größer 0 wählen';
+    } else if (this.workshop.duration !== Math.floor(this.workshop.participants)) { // Ganzzahligkeit prüfen
+      error = 'Bitte Ganzzahlige maximale Teilnehmerzahl wählen';
+    }
+
+    if (error) { // Display Error falls gefunden
+      this.errorService.showError(error);
+    }
+    return !(error);
   }
 
   public async onCancel() {

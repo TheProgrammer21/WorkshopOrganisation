@@ -17,8 +17,7 @@ function updateWorkshop(req, res) {
         description: { type: "string", required: true, maxLength: 512 },
         duration: { type: "integer", required: true, min: 1 },
         participants: { type: "integer", required: true, min: 1 },
-        startDate: { type: "date", required: true },
-        endDate: { type: "date", required: true }
+        startDate: { type: "date", required: true }
     })) return;
 
     if (checker.check({ id: id }, res, {
