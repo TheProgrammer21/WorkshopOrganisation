@@ -76,10 +76,12 @@ function identify(req, res, next) {
             }
         });
 
+        res.setHeader("Access-Control-Expose-Headers", "Authorization"); // allow to access the Authorization header field
+
         if (Date.now() / 1000 + (tokenRenewMinutes * 60) >= body.exp) { // if token expires in tokenRenewMinutes minutes
-            res.set('Authorization', "Bearer " + generateToken(req.user));
+            res.setHeader('Authorization', "Bearer " + generateToken(req.user));
         } else {
-            res.set('Authorization', "Bearer " + token);
+            res.setHeader('Authorization', "Bearer " + token);
         }
     } catch (err) { // not logged in because of a problem with the token
         next();
