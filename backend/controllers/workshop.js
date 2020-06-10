@@ -60,7 +60,7 @@ function getWorkshop(req, res) {
                         utils.respondSuccess(rows[0], res);
                     });
                 } else {
-                    utils.respondError("Unauthorized", res, 401);
+                    utils.respondError("Forbidden", res, 403);
                 }
             }
         });

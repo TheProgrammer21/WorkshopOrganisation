@@ -37,7 +37,7 @@ function isAdmin(req, res, next) {
     if (req.user !== undefined && req.permissions === 1) {
         next();
     } else {
-        utils.respondError('Unauthorized', res, 401);
+        utils.respondError('Forbidden', res, 403);
     }
 }
 
