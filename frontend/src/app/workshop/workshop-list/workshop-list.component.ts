@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Workshop, WorkshopService } from 'src/app/services/workshop.service';
 import { UserService } from 'src/app/services/user.service';
 import { FadeInRetarded } from 'src/app/animations/animations';
+import { DialogService } from 'src/app/services/dialog.service';
+import { ErrorService } from 'src/app/services/error.service';
 
 @Component({
   selector: 'app-workshop-list',
@@ -17,6 +18,7 @@ export class WorkshopListComponent {
 
   public loading: boolean;
   public error: string;
+  public notice: string;
   public showAdmin: boolean;
 
   public ouid: number;
@@ -24,7 +26,9 @@ export class WorkshopListComponent {
   constructor(
     private route: ActivatedRoute,
     private wsService: WorkshopService,
-    private userService: UserService
+    private userService: UserService,
+    private dialogService: DialogService,
+    private errorService: ErrorService
   ) {
     this.ouid = +this.route.snapshot.paramMap.get('ouid');
     this.fetchAndInit();
@@ -39,19 +43,23 @@ export class WorkshopListComponent {
     this.wsService.getWorkshopsForObligatoryUnit(this.ouid).subscribe(
       res => {
         this.workshops = res;
+        if (this.workshops.length === 0) {
+          this.notice = 'Keine Workshops vorhanden';
+        }
         this.loading = false;
       },
       err => {
-        if ((err as HttpErrorResponse).status === 404) {
-          this.error = 'Keine Workshops gefunden';
-        }
+        this.error = 'Fehler beim Laden!';
         this.loading = false;
       }
     );
   }
 
-  public deleteWS(ws: Workshop) {
-    if (confirm(`Wollen Sie '${ws.name}' wirklich löschen?`)) {
+  public async deleteWS(ws: Workshop) {
+    if (await this.dialogService.showConfirmDialog(
+        'Löschen?',
+        `Wollen Sie '${ws.name}' wirklich löschen?`,
+        'Löschen', 'Abbrechen').afterClosed().toPromise()) {
       this.wsService.deleteWorkshop(ws.id).subscribe(
         res => this.fetchAndInit()
       );

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarConfig, MatSnackBarRef } from '@angular/material/snack-bar';
 import { Router, NavigationStart } from '@angular/router';
 import { throwError, Observable } from 'rxjs';
 
@@ -12,6 +12,8 @@ export interface HttpErrorTask {
   providedIn: 'root'
 })
 export class ErrorService {
+
+  private snack: MatSnackBarRef<any>;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -40,11 +42,13 @@ export class ErrorService {
   }
 
   public showError(message: string, action: string = 'OK', config?: MatSnackBarConfig<any>): void {
-    this.snackBar.open(message, action, config);
+    this.snack = this.snackBar.open(message, action, config);
   }
 
   public dismissError(): void {
-    this.snackBar.dismiss();
+    if (this.snack) {
+      this.snack.dismiss();
+    }
   }
 
 }

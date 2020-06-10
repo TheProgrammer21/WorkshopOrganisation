@@ -60,7 +60,7 @@ export class WorkshopService {
 
   private standardHttpErrorMessages: Map<number, HttpErrorTask> = new Map([
     [404, {
-      message: 'Keine Workshops gefunden'
+      message: 'Workshop nicht gefunden!'
     }]
   ]);
   private httpErrorMessages: Map<number, HttpErrorTask> = new Map();

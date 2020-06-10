@@ -62,7 +62,7 @@ export class ObligatoryunitService {
 
   private standardHttpErrorMessages: Map<number, HttpErrorTask> = new Map([
     [404, {
-      message: 'Keine Events gefunden'
+      message: 'Events nicht gefunden!'
     }]
   ]);
   private httpErrorMessages: Map<number, HttpErrorTask> = new Map();

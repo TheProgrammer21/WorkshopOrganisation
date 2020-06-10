@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { WorkshopService, PARSE_TO_LOCAL, PARSE_TO_DATA, LocalWorkshop } from 'src/app/services/workshop.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { DialogService } from 'src/app/services/dialog.service';
 
 @Component({
   selector: 'app-workshop-edit',
@@ -20,7 +21,8 @@ export class WorkshopEditComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
-    private wsService: WorkshopService
+    private wsService: WorkshopService,
+    private dialogService: DialogService
   ) {
     this.ouid = +this.route.snapshot.paramMap.get('ouid');
     this.wsid = +this.route.snapshot.paramMap.get('wsid');
@@ -67,8 +69,11 @@ export class WorkshopEditComponent implements OnInit {
     }
   }
 
-  public onCancel() {
-    if (confirm('Sind Sie sicher, dass Sie die Änderungen verwerfen wollen?')) {
+  public async onCancel() {
+    if (await this.dialogService.showConfirmDialog(
+      'Änderungen verwerfen?', 'Wollen Sie die Änderungen verwerfen',
+      'Verwerfen', 'Abbrechen'
+    ).afterClosed().toPromise()) {
       this.location.back();
     }
   }

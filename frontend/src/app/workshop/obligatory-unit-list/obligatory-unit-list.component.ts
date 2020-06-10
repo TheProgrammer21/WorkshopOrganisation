@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { ObligatoryUnit, ObligatoryunitService, STATUS } from 'src/app/services/obligatoryunit.service';
-import { HttpErrorResponse } from '@angular/common/http';
 import { UserService } from 'src/app/services/user.service';
 import { FadeInRetarded } from 'src/app/animations/animations';
 import { ErrorService } from 'src/app/services/error.service';
+import { DialogService } from 'src/app/services/dialog.service';
 
 @Component({
   selector: 'app-obligatory-unit-list',
@@ -26,7 +26,8 @@ export class ObligatoryUnitListComponent {
   constructor(
     private ouService: ObligatoryunitService,
     private userService: UserService,
-    private errorService: ErrorService
+    private errorService: ErrorService,
+    private dialogService: DialogService
   ) {
     this.fetchAndInit();
     this.userService.getUser().subscribe(user => {
@@ -42,12 +43,11 @@ export class ObligatoryUnitListComponent {
         this.obligatoryUnits = res;
         if (this.obligatoryUnits.length === 0) {
           this.notice = 'Keine Events gefunden';
-          this.errorService.showError('Keine Events gefunden');
         }
         this.loading = false;
       },
       err => {
-        this.error = 'Fehler beim Laden';
+        this.error = 'Fehler beim Laden!';
         this.loading = false;
       }
     );
@@ -60,19 +60,24 @@ export class ObligatoryUnitListComponent {
     this.ouService.getAllObligatoryUntis(this.showStatus).subscribe(
       res => {
         this.obligatoryUnits = res;
+        if (this.obligatoryUnits.length === 0) {
+          this.notice = 'Keine Events gefunden';
+          this.errorService.showError('Keine Events gefunden');
+        }
         this.loading = false;
       },
       err => {
-        if ((err as HttpErrorResponse).status === 404) {
-          this.error = 'Keine Einträge gefunden';
-        }
+        this.error = 'Fehler beim Laden!';
         this.loading = false;
       }
     );
   }
 
-  public deleteOU(ou: ObligatoryUnit) {
-    if (confirm(`Wollen Sie '${ou.name}' wirklich löschen?`)) {
+  public async deleteOU(ou: ObligatoryUnit) {
+    if (await this.dialogService.showConfirmDialog(
+        'Löschen?',
+        `Möchten Sie\n'${ou.name}'\nwirklich löschen?`,
+        'Löschen', 'Abbrechen').afterClosed().toPromise()) {
       this.ouService.deleteObligatoryUnit(ou.id).subscribe(
         res => this.fetchFiltered()
       );
