@@ -157,8 +157,10 @@ function getAllWorkshopsForObligatoryUnit(req, res) {
                         WHERE obligatoryUnitId = ?;"
 
     db.query(res, queryString, [id], rows => {
-        // is the use authorized to see the obligatory unit
-        if (getAllowedStatus(req.permissions).includes("" + rows[0].status)) {
+        // is the user authorized to see the obligatory unit
+		if (rows.length === 0) {
+			utils.respondSuccess(rows, res);
+        } else if (getAllowedStatus(req.permissions).includes("" + rows[0].status)) {
             rows.forEach(e => delete e.status); // not needed by client
             utils.respondSuccess(rows, res);
         } else {

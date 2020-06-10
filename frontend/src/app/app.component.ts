@@ -52,6 +52,9 @@ export class AppComponent implements AfterViewInit {
 
   public goBack(): void {
     let newloc = this.router.url.substring(0, this.router.url.lastIndexOf('/'));
+    if (this.router.url.endsWith('edit')) {
+      newloc = newloc.substring(0, newloc.lastIndexOf('/'));
+    }
     if (newloc.match(/[0-9]/gm)) {
       while (!newloc.match(/[0-9]$/gm)) {
         newloc = newloc.substring(0, newloc.lastIndexOf('/'));

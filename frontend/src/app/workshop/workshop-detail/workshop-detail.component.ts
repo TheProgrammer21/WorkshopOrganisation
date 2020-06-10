@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Workshop, WorkshopService } from 'src/app/services/workshop.service';
 import { ObligatoryUnit, ObligatoryunitService } from 'src/app/services/obligatoryunit.service';
@@ -71,9 +70,6 @@ export class WorkshopDetailComponent implements OnInit {
     this.wsService.register(this.wsid).subscribe(
       res => {
         this.fetchAndInit();
-      },
-      err => {
-        alert('Error: ' + (err as HttpErrorResponse).error.err);
       }
     );
   }
@@ -82,9 +78,6 @@ export class WorkshopDetailComponent implements OnInit {
     this.wsService.unregister(this.wsid).subscribe(
       res => {
         this.fetchAndInit();
-      },
-      err => {
-        alert('Error: ' + (err as HttpErrorResponse).error.err);
       }
     );
   }

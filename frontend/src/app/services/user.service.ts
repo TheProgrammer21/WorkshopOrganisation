@@ -3,9 +3,8 @@ import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { ErrorService } from './error.service';
-import { MatDialog } from '@angular/material/dialog';
-import { LoginDialogComponent } from '../user/login-dialog/login.dialog';
 import { ConfigurationService } from './configuration.service';
+import { DialogService } from './dialog.service';
 
 export interface User {
   username: string;
@@ -36,7 +35,7 @@ export class UserService {
   constructor(
     private configService: ConfigurationService,
     private errorService: ErrorService,
-    private dialog: MatDialog,
+    private dialogService: DialogService,
     private http: HttpClient
   ) {
     this.backendUrl = `${this.configService.getBackendAddress()}`;
@@ -77,7 +76,7 @@ export class UserService {
 
   public async getAccessToken(): Promise<string> {
     if (this.accessToken && this.isTokenExpired(this.accessToken)) {
-      const auth = await this.showLoginDialog('Sitzung abgelaufen').toPromise(); // Wait for Login from Dialog
+      const auth = await this.dialogService.showLoginDialog('Sitzung abgelaufen').afterClosed().toPromise(); // Wait for Login from Dialog
       if (!auth) {
         this.logOut(); // log out user - delete Token and User
       }
@@ -111,22 +110,13 @@ export class UserService {
     if (this.accessToken === undefined) {
       return throwError(error);
     } else {
-      this.showLoginDialog('Unzureichende Rechte').subscribe(auth => {
+      this.dialogService.showLoginDialog('Unzureichende Rechte').afterClosed().subscribe(auth => {
         if (!auth) {
           this.errorService.showError('Für diese Aktion nicht authorisiert!');
         }
       });
       return of(undefined);
     }
-  }
-
-  private showLoginDialog(error: string): Observable<boolean> {
-    return this.dialog.open(LoginDialogComponent, {
-          height: '325px',
-          width: '300px',
-          disableClose: true,
-          data: { error }
-        }).afterClosed();
   }
 
 }

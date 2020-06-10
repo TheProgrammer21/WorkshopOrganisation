@@ -12,9 +12,9 @@
   </div>
   <mat-divider></mat-divider>
   <div class="content-container">
-    <div *ngIf="canGoBack()">
+    <div *ngIf="canGoBack()" class="back-button-container">
       <button mat-raised-button (click)="goBack()">
-        <mat-icon>arrow_left</mat-icon> Zurück
+        <mat-icon>expand_less</mat-icon> Zurück
       </button>
     </div>
     <div *ngIf="loggedIn" [@fadeIn]="getRouterOutletState(outlet)" class="content">
