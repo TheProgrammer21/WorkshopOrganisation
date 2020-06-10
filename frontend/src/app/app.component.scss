@@ -5,18 +5,37 @@
 }
 
 img {
-  display: inline-block;
-  max-height: 10em;
+  max-width: 92%;
+  max-height: 92%;
+  margin-top: 4%;
 }
 
 .header-container {
   text-align: center;
-  padding: 15px 0px 15px 0px;
   width: 100%;
+  max-width: 25em;
+  max-height: 10em;
+  margin: auto;
+}
+
+.site-container {
+  max-width: 100%;
 }
 
 .content-container {
-  padding: 15px;
+  padding-top: 2%;
+  padding-bottom: 2%;
   width: fit-content;
+  max-width: 96%;
+  margin: auto;
+  text-align: center;
+}
+
+.content {
+  padding-top: 2%;
+}
+
+mat-toolbar {
+  background-color: white;
   margin: auto;
 }

@@ -1,17 +1,25 @@
-<div class="header-container">
-  <div class="main-toolbar">
-    <button *ngIf="loggedIn" mat-icon-button (click)="onLogOut()">
-      <mat-icon>exit_to_app</mat-icon>
-    </button>
-  </div>
-  <a routerLink="/"><img src="/assets/logo.png" class="logo" alt="Logo"></a>
+<div class="main-toolbar">
+  <button *ngIf="loggedIn" mat-icon-button (click)="onLogOut()">
+    <mat-icon>exit_to_app</mat-icon>
+  </button>
 </div>
 
-<mat-divider></mat-divider>
-
-<div class="content-container" [@fadeIn]="loggedIn">
-  <div *ngIf="loggedIn" [@fadeIn]="getRouterOutletState(outlet)">
-    <router-outlet #outlet="outlet"></router-outlet>
+<div class="site-container" [@fadeIn]="loggedIn">
+  <div class="header-container">
+    <a routerLink="/">
+      <img src="/assets/logo.png" class="logo" alt="Logo">
+    </a>
   </div>
-  <app-login *ngIf="showLogin"></app-login>
+  <mat-divider></mat-divider>
+  <div class="content-container">
+    <div *ngIf="canGoBack()">
+      <button mat-raised-button (click)="goBack()">
+        <mat-icon>arrow_left</mat-icon> Zurück
+      </button>
+    </div>
+    <div *ngIf="loggedIn" [@fadeIn]="getRouterOutletState(outlet)" class="content">
+      <router-outlet #outlet="outlet"></router-outlet>
+    </div>
+    <app-login *ngIf="showLogin"></app-login>
+  </div>
 </div>
