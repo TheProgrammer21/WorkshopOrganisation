@@ -28,7 +28,7 @@ export class AuthenticationInterceptor implements HttpInterceptor {
             }
           }),
           catchError(err => {
-            if (err instanceof HttpErrorResponse && err.status === 401) {
+            if (err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403)) {
               return this.userService.handleUnauthorized(err);
             } else {
               return throwError(err);

@@ -110,7 +110,11 @@ export class UserService {
     if (this.accessToken === undefined) {
       return throwError(error);
     } else {
-      this.dialogService.showLoginDialog('Unzureichende Rechte').afterClosed().subscribe(auth => {
+      this.dialogService.showLoginDialog(
+        error.status === 401 ? 'Die Sitzung ist abgelaufen' :
+        error.status === 403 ? 'Unzureichende Berechtigung' :
+        'Bitte erneut authentifizieren'
+      ).afterClosed().subscribe(auth => {
         if (!auth) {
           this.errorService.showError('Für diese Aktion nicht authorisiert!');
         }
