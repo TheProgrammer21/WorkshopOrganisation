@@ -16,7 +16,7 @@ export class ObligatoryUnitListComponent {
   public allStatus: Map<number, string[]> = STATUS;
 
   public obligatoryUnits: ObligatoryUnit[];
-  public showStatus: number[] = Array.from(STATUS.keys());
+  public showStatus: number[] = [0,2,3];
 
   public loading: boolean;
   public error: string;
@@ -29,28 +29,10 @@ export class ObligatoryUnitListComponent {
     private errorService: ErrorService,
     private dialogService: DialogService
   ) {
-    this.fetchAndInit();
+    this.fetchFiltered();
     this.userService.getUser().subscribe(user => {
       this.showAdmin = user.role === 'admin';
     });
-  }
-
-  public fetchAndInit() {
-    this.loading = true;
-    this.error = undefined;
-    this.ouService.getAllObligatoryUntis().subscribe(
-      res => {
-        this.obligatoryUnits = res;
-        if (this.obligatoryUnits.length === 0) {
-          this.notice = 'Keine Events gefunden';
-        }
-        this.loading = false;
-      },
-      err => {
-        this.error = 'Fehler beim Laden!';
-        this.loading = false;
-      }
-    );
   }
 
   public fetchFiltered() {
@@ -79,6 +61,20 @@ export class ObligatoryUnitListComponent {
         `Möchten Sie\n'${ou.name}'\nwirklich löschen?`,
         'Löschen', 'Abbrechen').afterClosed().toPromise()) {
       this.ouService.deleteObligatoryUnit(ou.id).subscribe(
+        res => this.fetchFiltered()
+      );
+    }
+  }
+
+  public async setVisible(ou: ObligatoryUnit) {
+    if (await this.dialogService.showConfirmDialog(
+        'Sichtbar machen?',
+        `Möchten Sie\n'${ou.name}'\nwirklich sichtbar machen?`,
+        'OK', 'Abbrechen').afterClosed().toPromise()) {
+      this.ouService.updateObligatoryUnit(ou.id, {
+        name: ou.name, description: ou.description, startDate: ou.startDate,
+        endDate: ou.endDate, status: 2
+      }).subscribe(
         res => this.fetchFiltered()
       );
     }

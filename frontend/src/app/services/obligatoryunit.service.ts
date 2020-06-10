@@ -89,12 +89,13 @@ export class ObligatoryunitService {
   // Get All Obligatory Units with status
   // If no status is specified, any status will be returned
   public getAllObligatoryUntis(status?: number[]): Observable<ObligatoryUnit[]> {
-    const params = new HttpParams();
+    let params = new HttpParams();
     if (status) {
       for (const stat of status) {
-        params.append('status', stat.toString());
+        params = params.append('status', stat.toString());
       }
     }
+    console.log(params);
     return this.http.get<ObligatoryUnit[]>(`${this.obligatoryUnitAddress}/all`, {params}).pipe(
       catchError(err => this.handleError(err))
     );

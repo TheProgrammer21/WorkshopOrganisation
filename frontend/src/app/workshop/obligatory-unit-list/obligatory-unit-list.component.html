@@ -46,6 +46,11 @@
     </mat-card-content>
     <mat-card-footer *ngIf="showAdmin" class="admin-tools-footer">
       <mat-divider></mat-divider>
+      <button mat-icon-button *ngIf="obligatoryUnit.status === 0"
+        (click)="setVisible(obligatoryUnit)"
+        matTooltip="Sichtbar machen">
+        <mat-icon>visibility</mat-icon>
+      </button>
       <button routerLink="/obligatoryunits/{{obligatoryUnit.id}}/edit" mat-icon-button>
         <mat-icon>edit</mat-icon>
       </button>
