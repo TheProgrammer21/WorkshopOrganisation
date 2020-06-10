@@ -47,8 +47,8 @@ export function PARSE_TO_DATA(ou: LocalObligatoryUnit): ObligatoryUnitData {
 }
 
 export const STATUS = new Map<number, string[]>([
-  [0, ['Unsichtbar', 'Nur Admins - Neu erstellt']],
   [1, ['Versteckt', 'Nur Admins - Alte Events']],
+  [0, ['Unsichtbar', 'Nur Admins - Neu erstellt']],
   [2, ['Sichtbar', 'Jeder - Normal verwendbar']],
   [3, ['Gesperrt', 'Jeder - Nur ansehen, nicht registrieren']]
 ]);
