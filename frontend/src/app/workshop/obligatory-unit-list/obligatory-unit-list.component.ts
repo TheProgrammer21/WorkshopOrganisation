@@ -3,6 +3,7 @@ import { ObligatoryUnit, ObligatoryunitService, STATUS } from 'src/app/services/
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserService } from 'src/app/services/user.service';
 import { FadeInRetarded } from 'src/app/animations/animations';
+import { ErrorService } from 'src/app/services/error.service';
 
 @Component({
   selector: 'app-obligatory-unit-list',
@@ -19,11 +20,13 @@ export class ObligatoryUnitListComponent {
 
   public loading: boolean;
   public error: string;
+  public notice: string;
   public showAdmin: boolean;
 
   constructor(
     private ouService: ObligatoryunitService,
-    private userService: UserService
+    private userService: UserService,
+    private errorService: ErrorService
   ) {
     this.fetchAndInit();
     this.userService.getUser().subscribe(user => {
@@ -37,12 +40,14 @@ export class ObligatoryUnitListComponent {
     this.ouService.getAllObligatoryUntis().subscribe(
       res => {
         this.obligatoryUnits = res;
+        if (this.obligatoryUnits.length === 0) {
+          this.notice = 'Keine Events gefunden';
+          this.errorService.showError('Keine Events gefunden');
+        }
         this.loading = false;
       },
       err => {
-        if ((err as HttpErrorResponse).status === 404) {
-          this.error = 'Keine Einträge gefunden';
-        }
+        this.error = 'Fehler beim Laden';
         this.loading = false;
       }
     );
@@ -51,6 +56,7 @@ export class ObligatoryUnitListComponent {
   public fetchFiltered() {
     this.loading = true;
     this.error = undefined;
+    this.notice = undefined;
     this.ouService.getAllObligatoryUntis(this.showStatus).subscribe(
       res => {
         this.obligatoryUnits = res;

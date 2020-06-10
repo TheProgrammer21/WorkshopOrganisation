@@ -20,6 +20,7 @@
   </mat-card-content>
 </mat-card>
 <mat-error *ngIf="error">{{error}}</mat-error>
+<span *ngIf="notice">{{notice}}</span>
 <div *ngIf="!error" [@fadeInRetarded]="obligatoryUnits">
   <mat-card *ngFor="let obligatoryUnit of obligatoryUnits">
     <button mat-button class="card-header-button" routerLink="/obligatoryunits/{{obligatoryUnit.id}}">

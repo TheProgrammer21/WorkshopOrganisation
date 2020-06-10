@@ -1,7 +1,7 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { UserService } from './services/user.service';
 import { FadeIn } from './animations/animations';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -20,7 +20,8 @@ export class AppComponent implements AfterViewInit {
   public showLogin: boolean;
 
   constructor(
-    private userService: UserService
+    private userService: UserService,
+    private router: Router
   ) {
     this.userService.getUser().subscribe(
       user => {
@@ -43,6 +44,20 @@ export class AppComponent implements AfterViewInit {
 
   public onLogOut() {
     this.userService.logOut();
+  }
+
+  public canGoBack(): boolean {
+    return this.router.url !== '/obligatoryunits';
+  }
+
+  public goBack(): void {
+    let newloc = this.router.url.substring(0, this.router.url.lastIndexOf('/'));
+    if (newloc.match(/[0-9]/gm)) {
+      while (!newloc.match(/[0-9]$/gm)) {
+        newloc = newloc.substring(0, newloc.lastIndexOf('/'));
+      }
+    }
+    this.router.navigateByUrl(newloc);
   }
 
 }
