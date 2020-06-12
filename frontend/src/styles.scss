@@ -96,5 +96,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 // Custom MatCardHeaderButton
 mat-card .mat-button mat-card-header {
-  white-space: normal !important; // Enables Wordwrap in Card Headers globally
+  white-space: nowrap !important; // Enables Wordwrap in Card Headers globally
+  word-wrap: break-word !important;
+  word-break: break-all !important;
 }

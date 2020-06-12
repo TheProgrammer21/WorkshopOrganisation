@@ -42,27 +42,35 @@
       <mat-divider></mat-divider>
       <p>{{workshop.description}}</p>
     </mat-card-content>
+    <mat-card-footer *ngIf="showAdmin" class="admin-tools-footer">
+      <mat-divider></mat-divider>
+      <button routerLink="/obligatoryunits/{{ouid}}/workshop/{{workshop.id}}/edit" mat-icon-button>
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button (click)="deleteWS(workshop)">
+        <mat-icon>delete_forever</mat-icon>
+      </button>
+    </mat-card-footer>
   </mat-card>
 
-  <div></div>
-    <div *ngIf="!showAdmin" style="margin-bottom: 2%;">
-      <button [disabled]="obligatoryUnit.status !== 2" (click)="workshop.registered ? unregisterFromWorkshop() : registerForWorkshop()" mat-raised-button style="width: 100%;">
-        <mat-icon>{{workshop.registered ? 'how_to_reg' : 'person'}}</mat-icon>
-        {{workshop.registered ? 'Austragen' : 'Einschreiben'}}
-      </button>
-    </div>
-    <mat-card *ngIf="showAdmin">
-        <mat-card-header>
-            <h3>Eingeschriebene User</h3>
-        </mat-card-header>
-        <mat-card-content>
-            <table>
-                <div *ngFor="let username of workshop.currentParticipants">
-                    <tr>
-                        {{username}}
-                    </tr>
-                </div>
-            </table>
-        </mat-card-content>
+  <div *ngIf="!showAdmin" style="margin-bottom: 2%;">
+    <button [disabled]="obligatoryUnit.status !== 2" (click)="workshop.registered ? unregisterFromWorkshop() : registerForWorkshop()" mat-raised-button style="width: 100%;">
+      <mat-icon>{{workshop.registered ? 'how_to_reg' : 'person'}}</mat-icon>
+      {{workshop.registered ? 'Austragen' : 'Einschreiben'}}
+    </button>
+  </div>
+  <mat-card *ngIf="showAdmin">
+      <mat-card-header>
+          <h3>Eingeschriebene User</h3>
+      </mat-card-header>
+      <mat-card-content>
+          <table>
+              <div *ngFor="let username of workshop.currentParticipants">
+                  <tr>
+                      {{username}}
+                  </tr>
+              </div>
+          </table>
+      </mat-card-content>
     </mat-card>
 </div>

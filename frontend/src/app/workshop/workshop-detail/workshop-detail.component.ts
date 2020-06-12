@@ -4,6 +4,7 @@ import { Workshop, WorkshopService } from 'src/app/services/workshop.service';
 import { ObligatoryUnit, ObligatoryunitService } from 'src/app/services/obligatoryunit.service';
 import { UserService } from 'src/app/services/user.service';
 import { FadeInRetarded } from 'src/app/animations/animations';
+import { DialogService } from 'src/app/services/dialog.service';
 
 @Component({
   selector: 'app-workshop-detail',
@@ -27,7 +28,8 @@ export class WorkshopDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private wsService: WorkshopService,
     private ouService: ObligatoryunitService,
-    private userService: UserService
+    private userService: UserService,
+    private dialogService: DialogService
   ) {
     this.ouid = +this.route.snapshot.paramMap.get('ouid');
     this.wsid = +this.route.snapshot.paramMap.get('wsid');
@@ -80,6 +82,17 @@ export class WorkshopDetailComponent implements OnInit {
         this.fetchAndInit();
       }
     );
+  }
+
+  public async deleteWS(ws: Workshop) {
+    if (await this.dialogService.showConfirmDialog(
+        'Löschen?',
+        `Wollen Sie '${ws.name}' wirklich löschen?`,
+        'Löschen', 'Abbrechen').afterClosed().toPromise()) {
+      this.wsService.deleteWorkshop(ws.id).subscribe(
+        res => this.fetchAndInit()
+      );
+    }
   }
 
 }
