@@ -84,12 +84,12 @@ export class WorkshopDetailComponent implements OnInit {
     );
   }
 
-  public async deleteWS(ws: Workshop) {
+  public async deleteWS() {
     if (await this.dialogService.showConfirmDialog(
         'Löschen?',
-        `Wollen Sie '${ws.name}' wirklich löschen?`,
+        `Wollen Sie '${this.workshop.name}' wirklich löschen?`,
         'Löschen', 'Abbrechen').afterClosed().toPromise()) {
-      this.wsService.deleteWorkshop(ws.id).subscribe(
+      this.wsService.deleteWorkshop(this.workshop.id).subscribe(
         res => this.fetchAndInit()
       );
     }
