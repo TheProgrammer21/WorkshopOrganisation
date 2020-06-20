@@ -15,5 +15,4 @@ export class ConfigurationService {
   public getBackendAddress(): string {
     return this.backendAddress;
   }
-
 }

@@ -14,7 +14,6 @@ export interface HttpErrorTask {
 export class ErrorService {
 
   private snack: MatSnackBarRef<any>;
-
   constructor(
     private snackBar: MatSnackBar,
     private router: Router
