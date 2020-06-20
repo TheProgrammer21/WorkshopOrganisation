@@ -1,6 +1,7 @@
 var db = require('../services/db');
 var utils = require('../services/utils');
 var auth = require('../services/auth');
+var checker = require('expressjs-check');
 
 var obligatoryUnit = {
     invisible: 0, // just created, still working on - not shown to anyone but admins
@@ -24,16 +25,12 @@ function createObligatoryUnit(req, res) {
     let name = req.body.name;
     let description = req.body.description;
 
-    if (!utils.isSpecified(name) || !utils.isSpecified(description)) {
-        utils.respondError("Invalid body format", res, 400);
-        return;
-    } else if (startDate == "Invalid Date" || endDate == "Invalid Date") {
-        utils.respondError("Invalid start or end date", res, 400);
-        return;
-    } else if (name.length > 64 || description.length > 512) {
-        utils.respondError("Name or description too long", res, 400);
-        return;
-    }
+    if (checker.check(req.body, res, {
+        name: { type: "string", required: true, maxLength: 64 },
+        description: { type: "string", required: true, maxLength: 512 },
+        startDate: { type: "date", required: true },
+        endDate: { type: "date", required: true }
+    })) return;
 
     db.query(res, "INSERT INTO obligatoryUnit (startDate, endDate, name, description, status) VALUES (?, ?, ?, ?, ?);", [startDate, endDate, name, description, 0], rows => {
         utils.respondSuccess({ id: rows.insertId }, res, 201);
@@ -47,23 +44,20 @@ function updateObligatoryUnit(req, res) {
     let name = req.body.name;
     let description = req.body.description;
     let status = req.body.status;
+    req.body.id = id; // For check() method
 
-    if (!utils.isNumber(id)) {
-        utils.respondError("Invalid id", res, 400);
-        return;
-    } else if (!utils.isSpecified(name) || !utils.isSpecified(description) || !utils.isNumber(status)) {
-        utils.respondError("Invalid body format", res, 400);
-        return;
-    } else if (startDate == "Invalid Date" || endDate == "Invalid Date") {
-        utils.respondError("Invalid start or end date", res, 400);
-        return;
-    } else if (name.length > 64 || description.length > 512) {
-        utils.respondError("Name or description too long", res, 400);
-        return;
-    } else if (parseInt(status) < 0 || parseInt(status) > 3) {
-        utils.respondError("Invalid status code", res, 400);
-        return;
-    }
+    if (checker.check(req.body, res, {
+        id: { type: "integer", required: true },
+        name: { type: "string", required: true, maxLength: 64 },
+        description: { type: "string", required: true, maxLength: 512 },
+        status: { type: "integer", required: true, min: 0, max: 3 },
+        startDate: { type: "date", required: true },
+        endDate: { type: "date", required: true }
+    })) return;
+
+    if (checker.check({ id: id }, res, {
+        id: { type: "integer", required: true }
+    })) return;
 
     db.query(res, "UPDATE obligatoryUnit SET startDate = ?, endDate = ?, name = ?, description = ?, status = ? WHERE id = ?;", [startDate, endDate, name, description, status, id], rows => {
         if (rows.effectedRows === 0) {
@@ -77,10 +71,9 @@ function updateObligatoryUnit(req, res) {
 function getObligatoryUnit(req, res) {
     id = req.params.id;
 
-    if (!utils.isNumber(id)) {
-        utils.respondError("Invalid id", res, 400);
-        return;
-    }
+    if (checker.check({ id: id }, res, {
+        id: { type: "integer", required: true }
+    })) return;
 
     db.query(res, "SELECT * FROM obligatoryUnit WHERE id = ?;", [id], rows => {
         if (rows.length == 0) {
@@ -89,10 +82,12 @@ function getObligatoryUnit(req, res) {
             let status = rows[0].status;
             if (status === obligatoryUnit.hidden || status === obligatoryUnit.invisible) { // hidden, only admins can see
                 if (auth.translatePermission(req.permissions) === "admin") {
-                    utils.respondSuccess(rows[0], res)
+                    utils.respondSuccess(rows[0], res);
                 } else {
-                    utils.respondError("Unauthorized", res, 401);
+                    utils.respondError("Forbidden", res, 403);
                 }
+            } else {
+                utils.respondSuccess(rows[0], res);
             }
         }
     });
@@ -120,7 +115,7 @@ function getAllObligatoryUnits(req, res) {
     status = status.filter(x => allowedStatus.includes(x));
 
     if (status.length === 0) { // there are no units that this user could possibly see because of permissions
-        utils.respondError("Unauthorized", res, 401);
+        utils.respondError("Forbidden", res, 403);
         return;
     }
 
@@ -162,16 +157,14 @@ function getAllWorkshopsForObligatoryUnit(req, res) {
                         WHERE obligatoryUnitId = ?;"
 
     db.query(res, queryString, [id], rows => {
-        if (rows.length === 0) {
-            utils.respondError("Not found", res, 404);
+        // is the user authorized to see the obligatory unit
+		if (rows.length === 0) {
+			utils.respondSuccess(rows, res);
+        } else if (getAllowedStatus(req.permissions).includes("" + rows[0].status)) {
+            rows.forEach(e => delete e.status); // not needed by client
+            utils.respondSuccess(rows, res);
         } else {
-            // is the use authorized to see the obligatory unit
-            if (getAllowedStatus(req.permissions).includes("" + rows[0].status)) {
-                rows.forEach(e => delete e.status); // not needed by client
-                utils.respondSuccess(rows, res);
-            } else {
-                utils.respondError("Unauthorized", res, 401);
-            }
+            utils.respondError("Forbidden", res, 403);
         }
     });
 }

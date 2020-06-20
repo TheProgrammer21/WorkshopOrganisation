@@ -25,7 +25,7 @@ export const FadeSite =
   ]);
 
 export const FadeText =
-  trigger('displayText', [
+  trigger('fadeText', [
     transition('* => *', [
       query(':enter', [
         style({ opacity: 0 }),

@@ -1,15 +1,46 @@
+.main-toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
 img {
-  max-height: 100%;
-  max-width: 100%;
+  max-width: 92%;
+  max-height: 92%;
+  margin-top: 4%;
 }
 
 .header-container {
-  width: fit-content;
+  text-align: center;
+  width: 100%;
+  max-width: 25em;
+  max-height: 10em;
   margin: auto;
-  padding: 15px;
-  height: 10%;
+}
+
+.site-container {
+  width: 100%;
 }
 
 .content-container {
-  padding-top: 15px;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  width: 96%;
+  max-width: 25em;
+  margin: auto;
+  text-align: center;
+  align-content: center;
+}
+
+.back-button-container {
+  margin-bottom: 6%;
+}
+
+.content {
+  margin: auto;
+}
+
+mat-toolbar {
+  background-color: white;
+  margin: auto;
 }

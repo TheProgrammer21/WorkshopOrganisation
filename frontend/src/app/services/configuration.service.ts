@@ -5,11 +5,14 @@ import { Injectable } from '@angular/core';
 })
 export class ConfigurationService {
 
-  public backendAddress: string;
+  private backendAddress: string;
 
   constructor() {
     this.backendAddress =
       `${window.location.protocol}//${window.location.hostname}:8085/api`;
   }
 
+  public getBackendAddress(): string {
+    return this.backendAddress;
+  }
 }

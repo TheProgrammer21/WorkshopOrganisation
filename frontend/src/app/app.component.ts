@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, AfterViewInit } from '@angular/core';
+import { UserService } from './services/user.service';
 import { FadeIn } from './animations/animations';
+import { RouterOutlet, Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -10,11 +11,56 @@ import { FadeIn } from './animations/animations';
     FadeIn
   ]
 })
-export class AppComponent {
-  title = 'frontend';
+export class AppComponent implements AfterViewInit {
+  title = 'WorkshopOrganisation';
+
+  public barExpanded: boolean;
+
+  public loggedIn: boolean;
+  public showLogin: boolean;
+
+  constructor(
+    private userService: UserService,
+    private router: Router
+  ) {
+    this.userService.getUser().subscribe(
+      user => {
+        if (user) {
+          this.showLogin = false;
+          setTimeout(() => this.loggedIn = true, 1);
+        } else {
+          this.loggedIn = false;
+          setTimeout(() => this.showLogin = true, 1);
+        }
+      }
+    );
+  }
+
+  ngAfterViewInit() { }
 
   public getRouterOutletState(outlet: RouterOutlet) {
-    return outlet.isActivated ? outlet.activatedRoute : '';
+    return outlet && outlet.activatedRouteData;
+  }
+
+  public onLogOut() {
+    this.userService.logOut();
+  }
+
+  public canGoBack(): boolean {
+    return this.router.url !== '/obligatoryunits';
+  }
+
+  public goBack(): void {
+    let newloc = this.router.url.substring(0, this.router.url.lastIndexOf('/'));
+    if (this.router.url.endsWith('edit')) {
+      newloc = newloc.substring(0, newloc.lastIndexOf('/'));
+    }
+    if (newloc.match(/[0-9]/gm)) {
+      while (!newloc.match(/[0-9]$/gm)) {
+        newloc = newloc.substring(0, newloc.lastIndexOf('/'));
+      }
+    }
+    this.router.navigateByUrl(newloc);
   }
 
 }

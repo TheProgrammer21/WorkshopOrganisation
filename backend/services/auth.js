@@ -37,7 +37,7 @@ function isAdmin(req, res, next) {
     if (req.user !== undefined && req.permissions === 1) {
         next();
     } else {
-        utils.respondError('Unauthorized', res, 401);
+        utils.respondError('Forbidden', res, 403);
     }
 }
 
@@ -50,11 +50,9 @@ function loggedIn(req, res, next) {
 }
 
 function identify(req, res, next) {
-    let token = req.get('Authorization') || ''; // that split doesn't fail in next line
+    let token = (req.get('Authorization') || "").split(" ")[1]; // remove the Bearer word at the beginning
     req.user = undefined;
     req.permissions = undefined;
-
-    token = token.split(' ')[1]; //remove the Bearer word at the beginning
 
     if (token === undefined) { // Bearer at the beginning is missing
         next();
@@ -78,10 +76,12 @@ function identify(req, res, next) {
             }
         });
 
+        res.setHeader("Access-Control-Expose-Headers", "Authorization"); // allow to access the Authorization header field
+
         if (Date.now() / 1000 + (tokenRenewMinutes * 60) >= body.exp) { // if token expires in tokenRenewMinutes minutes
-            res.set('Authorization', "Bearer " + generateToken(req.user));
+            res.setHeader('Authorization', "Bearer " + generateToken(req.user));
         } else {
-            res.set('Authorization', "Bearer " + token);
+            res.setHeader('Authorization', "Bearer " + token);
         }
     } catch (err) { // not logged in because of a problem with the token
         next();
@@ -89,11 +89,7 @@ function identify(req, res, next) {
 }
 
 function translatePermission(permission) { // translates number into string
-    switch (permission) {
-        case 0: return 'student';
-        case 1: return 'admin';
-        default: return undefined;
-    }
+    return ["student", "admin"][permission];
 }
 
 module.exports = {

@@ -1,13 +1,21 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { LoginComponent } from './login/login.component';
-import { UserComponent } from './user-old/user.component';
+import { ObligatoryUnitListComponent } from './workshop/obligatory-unit-list/obligatory-unit-list.component';
+import { WorkshopListComponent } from './workshop/workshop-list/workshop-list.component';
+import { WorkshopDetailComponent } from './workshop/workshop-detail/workshop-detail.component';
+import { WorkshopEditComponent } from './workshop/workshop-edit/workshop-edit.component';
+import { ObligatoryUnitEditComponent } from './workshop/obligatory-unit-edit/obligatory-unit-edit.component';
 
 
 const routes: Routes = [
-  { path: '', component: UserComponent },
-  { path: 'user', component: UserComponent },
-  { path: 'user/login', component: LoginComponent }
+  {path: '', redirectTo: 'obligatoryunits', pathMatch: 'full'},
+  {path: 'obligatoryunits', component: ObligatoryUnitListComponent},
+  {path: 'obligatoryunits/new', component: ObligatoryUnitEditComponent},
+  {path: 'obligatoryunits/:ouid', component: WorkshopListComponent},
+  {path: 'obligatoryunits/:ouid/edit', component: ObligatoryUnitEditComponent},
+  {path: 'obligatoryunits/:ouid/new', component: WorkshopEditComponent},
+  {path: 'obligatoryunits/:ouid/workshop/:wsid', component: WorkshopDetailComponent},
+  {path: 'obligatoryunits/:ouid/workshop/:wsid/edit', component: WorkshopEditComponent}
 ];
 
 @NgModule({

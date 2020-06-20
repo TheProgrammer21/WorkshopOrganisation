@@ -1,0 +1,38 @@
+mat-card {
+  width: fit-content;
+  min-width: 300px;
+  margin: auto;
+}
+
+mat-spinner {
+  margin: auto;
+}
+
+mat-card-content {
+  overflow: hidden;
+}
+
+mat-error {
+  text-align: center;
+  padding-bottom: 15px;
+}
+
+.cause-container {
+  text-align: center;
+}
+
+.input-container {
+  text-align: center;
+}
+
+.show-password-button {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.login-button {
+  width: 100%;
+}
+
+.input-password {
+  max-width: 180px;
+}
