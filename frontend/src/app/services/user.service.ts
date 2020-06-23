@@ -107,9 +107,7 @@ export class UserService {
   }
 
   public handleUnauthorized(error: HttpErrorResponse): Observable<any> {
-    if (this.accessToken === undefined) {
-      return throwError(error);
-    } else {
+    if (this.accessToken !== undefined) {
       this.dialogService.showLoginDialog(
         error.status === 401 ? 'Die Sitzung ist abgelaufen' :
         error.status === 403 ? 'Unzureichende Berechtigung' :
@@ -119,7 +117,7 @@ export class UserService {
           this.errorService.showError('Für diese Aktion nicht authorisiert!');
         }
       });
-      return of(undefined);
+      return throwError(undefined);
     }
   }
 

@@ -5,6 +5,7 @@ import { ObligatoryUnit, ObligatoryunitService } from 'src/app/services/obligato
 import { UserService } from 'src/app/services/user.service';
 import { FadeInRetarded } from 'src/app/animations/animations';
 import { DialogService } from 'src/app/services/dialog.service';
+import { ErrorService } from 'src/app/services/error.service';
 
 @Component({
   selector: 'app-workshop-detail',
@@ -30,12 +31,15 @@ export class WorkshopDetailComponent implements OnInit {
     private wsService: WorkshopService,
     private ouService: ObligatoryunitService,
     private userService: UserService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private errorService: ErrorService
   ) {
     this.ouid = +this.route.snapshot.paramMap.get('ouid');
     this.wsid = +this.route.snapshot.paramMap.get('wsid');
     this.userService.getUser().subscribe(user => {
-      this.showAdmin = user.role === 'admin';
+      if (user) {
+        this.showAdmin = user.role === 'admin';
+      }
     });
   }
 
@@ -73,6 +77,11 @@ export class WorkshopDetailComponent implements OnInit {
     this.wsService.register(this.wsid).subscribe(
       res => {
         this.fetchAndInit();
+      },
+      err => {
+        if (err.status === 409) {
+          this.errorService.showError('Zeitlicher Konflikt mit anderem Workshop!');
+        }
       }
     );
   }
