@@ -33,7 +33,9 @@ export class WorkshopListComponent {
     this.ouid = +this.route.snapshot.paramMap.get('ouid');
     this.fetchAndInit();
     this.userService.getUser().subscribe(user => {
-      this.showAdmin = user.role === 'admin';
+      if (user) {
+        this.showAdmin = user.role === 'admin';
+      }
     });
   }
 
