@@ -78,12 +78,12 @@ export class WorkshopEditComponent implements OnInit {
 
     if (!this.workshop.name) { // Name prüfen v
       error = 'Bitte Name eingeben';
-    } else if (this.workshop.name.length > 64) {
-      error = 'Bitte Name mit maximal 64 Zeichen wählen';
+    } else if (this.workshop.name.length > 512) {
+      error = 'Bitte Name mit maximal 512 Zeichen wählen';
     } else if (!this.workshop.description) { // Beschreibung prüfen v
       error = 'Bitte Beschreibung eingeben';
-    } else if (this.workshop.description.length > 512) {
-      error = 'Bitte Beschreibung mit maximal 512 Zeichen wählen';
+    } else if (this.workshop.description.length > 2048) {
+      error = 'Bitte Beschreibung mit maximal 2048 Zeichen wählen';
     } else if (!this.workshop.startDate) { // Beginndatum prüfen
       error = 'Bitte Beginndatum eingeben';
     } else if (!this.workshop.duration) { // Dauer prüfen v

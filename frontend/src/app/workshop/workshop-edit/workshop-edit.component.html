@@ -6,11 +6,11 @@
   <mat-card-content>
     <mat-form-field appearance="fill">
       <mat-label>Name</mat-label>
-      <input matInput required placeholder="Name" maxlength="64" [(ngModel)]="workshop.name">
+      <input matInput required placeholder="Name" maxlength="512" [(ngModel)]="workshop.name">
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Beschreibung</mat-label>
-      <textarea matInput required placeholder="Beschreibung" maxlength="512" [(ngModel)]="workshop.description"></textarea>
+      <textarea matInput required placeholder="Beschreibung" maxlength="2048" [(ngModel)]="workshop.description"></textarea>
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Beginndatum</mat-label>
