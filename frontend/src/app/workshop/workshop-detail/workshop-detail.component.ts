@@ -75,22 +75,33 @@ export class WorkshopDetailComponent implements OnInit {
 
   public registerForWorkshop() {
     this.wsService.register(this.wsid).subscribe(
-      res => {
-        this.fetchAndInit();
-      },
+      res => this.fetchAndInit(),
       err => {
         if (err.status === 409) {
-          this.errorService.showError('Zeitlicher Konflikt mit anderem Workshop!');
+          switch (err.error.err) {
+            case 'User is already registered for this workshop':
+              this.errorService.showError('Bereits für diesen Workshop registriert!');
+              break;
+            case 'The user is registered for another workshop at this time':
+              this.errorService.showError('Zeitlicher Konflikt mit anderem Workshop!');
+              break;
+            case 'The maximum amount of participants is reached':
+              this.errorService.showError('Maximale Teilnehmerzahl erreicht!');
+              break;
+            case 'It is not possible to change the registration status for this workshop at the moment':
+              this.errorService.showError('Der Registrierungsstatus kann nicht mehr geändert werden!');
+              break;
+          }
         }
+        this.fetchAndInit();
       }
     );
   }
 
   public unregisterFromWorkshop() {
     this.wsService.unregister(this.wsid).subscribe(
-      res => {
-        this.fetchAndInit();
-      }
+      res => this.fetchAndInit(),
+      err => this.fetchAndInit()
     );
   }
 

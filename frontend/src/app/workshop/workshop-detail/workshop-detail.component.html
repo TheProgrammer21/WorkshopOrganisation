@@ -54,7 +54,7 @@
   </mat-card>
 
   <div *ngIf="!showAdmin" style="margin-bottom: 2%;">
-    <button [disabled]="obligatoryUnit.status !== 2" (click)="workshop.registered ? unregisterFromWorkshop() : registerForWorkshop()" mat-raised-button style="width: 100%;">
+    <button [disabled]="obligatoryUnit.status !== 2 || workshop.currentParticipants.length === workshop.participants" (click)="workshop.registered ? unregisterFromWorkshop() : registerForWorkshop()" mat-raised-button style="width: 100%;">
       <mat-icon>{{workshop.registered ? 'how_to_reg' : 'person'}}</mat-icon>
       {{workshop.registered ? 'Austragen' : 'Einschreiben'}}
     </button>
