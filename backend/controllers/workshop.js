@@ -115,6 +115,7 @@ function register(req, res) {
     db.query(res, "CALL registerWorkshop(?, ?)", [id, req.user], rows => {
         utils.respondSuccess(undefined, res, 200);
     }, err => {
+        console.log(err.errno);
         switch (err.errno) {
             case 1643:
                 utils.respondError("Not found", res, 404);

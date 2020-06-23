@@ -2,7 +2,7 @@
 -- Host:                         127.0.0.1
 -- Server Version:               10.4.11-MariaDB - mariadb.org binary distribution
 -- Server Betriebssystem:        Win64
--- HeidiSQL Version:             10.3.0.5896
+-- HeidiSQL Version:             11.0.0.5919
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -13,12 +13,10 @@
 
 
 -- Exportiere Datenbank Struktur für workshop
-DROP DATABASE IF EXISTS `workshop`;
 CREATE DATABASE IF NOT EXISTS `workshop` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `workshop`;
 
 -- Exportiere Struktur von Funktion workshop.createWorkshop
-DROP FUNCTION IF EXISTS `createWorkshop`;
 DELIMITER //
 CREATE FUNCTION `createWorkshop`(`obligatoryUnitId` INT,
 	`name` VARCHAR(64),
@@ -42,7 +40,6 @@ END//
 DELIMITER ;
 
 -- Exportiere Struktur von Prozedur workshop.deleteObligatoryUnit
-DROP PROCEDURE IF EXISTS `deleteObligatoryUnit`;
 DELIMITER //
 CREATE PROCEDURE `deleteObligatoryUnit`(
 	IN `unitId` INT
@@ -62,7 +59,6 @@ END//
 DELIMITER ;
 
 -- Exportiere Struktur von Funktion workshop.isRegisterable
-DROP FUNCTION IF EXISTS `isRegisterable`;
 DELIMITER //
 CREATE FUNCTION `isRegisterable`(`workshopId` INT
 ) RETURNS binary(1)
@@ -76,7 +72,6 @@ END//
 DELIMITER ;
 
 -- Exportiere Struktur von Tabelle workshop.obligatoryunit
-DROP TABLE IF EXISTS `obligatoryunit`;
 CREATE TABLE IF NOT EXISTS `obligatoryunit` (
   `id` int(4) NOT NULL AUTO_INCREMENT,
   `startDate` date NOT NULL,
@@ -85,12 +80,11 @@ CREATE TABLE IF NOT EXISTS `obligatoryunit` (
   `description` varchar(512) NOT NULL,
   `status` int(1) NOT NULL DEFAULT 0 COMMENT 'inactive = 0;  1 = hidden; 2 = visible and registerable; 3 = visible and not registerable',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Tabelle workshop.obligatoryunitworkshop
-DROP TABLE IF EXISTS `obligatoryunitworkshop`;
 CREATE TABLE IF NOT EXISTS `obligatoryunitworkshop` (
   `obligatoryUnitId` int(11) NOT NULL,
   `workshopId` int(11) NOT NULL,
@@ -103,7 +97,6 @@ CREATE TABLE IF NOT EXISTS `obligatoryunitworkshop` (
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Prozedur workshop.registerWorkshop
-DROP PROCEDURE IF EXISTS `registerWorkshop`;
 DELIMITER //
 CREATE PROCEDURE `registerWorkshop`(
 	IN `workshopId` INT,
@@ -163,10 +156,10 @@ DECLARE participants INT;
 									WHERE userWorkshop.userId = username
 										AND ((SELECT startDate
 											  FROM workshop 
-											  WHERE id = workshopId) BETWEEN workshop.startDate AND DATE_ADD(workshop.startDate, INTERVAL workshop.duration DAY)
+											  WHERE id = workshopId) BETWEEN workshop.startDate AND DATE_ADD(workshop.startDate, INTERVAL workshop.duration - 1 DAY)
 										OR (SELECT DATE_ADD(workshop.startDate, INTERVAL workshop.duration DAY)
 											  FROM workshop 
-											  WHERE id = workshopId) BETWEEN workshop.startDate AND DATE_ADD(workshop.startDate, INTERVAL workshop.duration DAY)));											  	
+											  WHERE id = workshopId) BETWEEN workshop.startDate AND DATE_ADD(workshop.startDate, INTERVAL workshop.duration - 1 DAY)));											  	
 	
 	IF @workshopsOfUser = 0 THEN
 		INSERT INTO userWorkshop (userWorkshop.workshopId, userWorkshop.userId) VALUES (workshopId, username);
@@ -178,7 +171,6 @@ END//
 DELIMITER ;
 
 -- Exportiere Struktur von Prozedur workshop.unregisterFromWorkshop
-DROP PROCEDURE IF EXISTS `unregisterFromWorkshop`;
 DELIMITER //
 CREATE PROCEDURE `unregisterFromWorkshop`(
 	IN `workshopId` INT,
@@ -214,7 +206,6 @@ END//
 DELIMITER ;
 
 -- Exportiere Struktur von Tabelle workshop.user
-DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `username` varchar(10) NOT NULL,
   `firstname` varchar(32) NOT NULL,
@@ -227,7 +218,6 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Tabelle workshop.userworkshop
-DROP TABLE IF EXISTS `userworkshop`;
 CREATE TABLE IF NOT EXISTS `userworkshop` (
   `workshopId` int(8) NOT NULL,
   `userId` varchar(10) NOT NULL,
@@ -238,16 +228,15 @@ CREATE TABLE IF NOT EXISTS `userworkshop` (
 -- Daten Export vom Benutzer nicht ausgewählt
 
 -- Exportiere Struktur von Tabelle workshop.workshop
-DROP TABLE IF EXISTS `workshop`;
 CREATE TABLE IF NOT EXISTS `workshop` (
   `id` int(8) NOT NULL AUTO_INCREMENT,
-  `name` varchar(64) NOT NULL,
-  `description` varchar(512) NOT NULL,
+  `name` varchar(512) NOT NULL,
+  `description` varchar(2048) NOT NULL,
   `startDate` date NOT NULL,
   `duration` int(2) NOT NULL,
   `participants` int(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8;
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
