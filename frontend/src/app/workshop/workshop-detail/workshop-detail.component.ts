@@ -95,14 +95,17 @@ export class WorkshopDetailComponent implements OnInit {
   }
 
   public async deleteWS() {
-    if (await this.dialogService.showConfirmDialog(
+    this.dialogService.showConfirmDialog(
         'Löschen?',
         `Wollen Sie '${this.workshop.name}' wirklich löschen?`,
-        'Löschen', 'Abbrechen').afterClosed().toPromise()) {
-      this.wsService.deleteWorkshop(this.workshop.id).subscribe(
-        res => this.router.navigateByUrl(`/obligatoryunits/${this.workshop.obligatoryUnit}`)
-      );
-    }
+        'Löschen', 'Abbrechen')
+    .afterClosed().subscribe(confirm => {
+      if (confirm) {
+        this.wsService.deleteWorkshop(this.workshop.id).subscribe(
+          res => this.router.navigateByUrl(`/obligatoryunits/${this.ouid}`)
+        );
+      }
+    });
   }
 
 }

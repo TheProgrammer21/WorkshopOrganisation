@@ -47,7 +47,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   public canGoBack(): boolean {
-    return this.router.url !== '/obligatoryunits';
+    return this.router.url !== '/obligatoryunits' && this.loggedIn;
   }
 
   public goBack(): void {

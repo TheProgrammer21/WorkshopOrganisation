@@ -27,7 +27,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class LoginComponent implements OnInit {
 
-  @Input() redirectUrl = '/';
+  @Input() redirectUrl;
 
   public username: string;
   public password: string;
