@@ -13,8 +13,8 @@ function updateWorkshop(req, res) {
     req.body.id = id; // For check() method
 
     if (checker.check(req.body, res, {
-        name: { type: "string", required: true, maxLength: 64 },
-        description: { type: "string", required: true, maxLength: 512 },
+        name: { type: "string", required: true, maxLength: 512 },
+        description: { type: "string", required: true, maxLength: 2048 },
         duration: { type: "integer", required: true, min: 1 },
         participants: { type: "integer", required: true, min: 1 },
         startDate: { type: "date", required: true }
@@ -91,8 +91,8 @@ function createWorkshop(req, res) {
 
     if (checker.check(req.body, res, {
         obligatoryUnit: { type: "integer", required: true },
-        name: { type: "string", required: true, maxLength: 64 },
-        description: { type: "string", required: true, maxLength: 512 },
+        name: { type: "string", required: true, maxLength: 512 },
+        description: { type: "string", required: true, maxLength: 2048 },
         duration: { type: "integer", required: true, min: 1 },
         participants: { type: "integer", required: true, min: 1 }
     })) return;
