@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Workshop, WorkshopService } from 'src/app/services/workshop.service';
 import { ObligatoryUnit, ObligatoryunitService } from 'src/app/services/obligatoryunit.service';
 import { UserService } from 'src/app/services/user.service';
@@ -26,6 +26,7 @@ export class WorkshopDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private wsService: WorkshopService,
     private ouService: ObligatoryunitService,
     private userService: UserService,
@@ -90,7 +91,7 @@ export class WorkshopDetailComponent implements OnInit {
         `Wollen Sie '${this.workshop.name}' wirklich löschen?`,
         'Löschen', 'Abbrechen').afterClosed().toPromise()) {
       this.wsService.deleteWorkshop(this.workshop.id).subscribe(
-        res => this.fetchAndInit()
+        res => this.router.navigateByUrl(`/obligatoryunits/${this.workshop.obligatoryUnit}`)
       );
     }
   }
