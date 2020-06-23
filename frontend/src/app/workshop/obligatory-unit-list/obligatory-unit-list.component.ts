@@ -31,7 +31,7 @@ export class ObligatoryUnitListComponent {
   ) {
     this.fetchFiltered();
     this.userService.getUser().subscribe(user => {
-      this.showAdmin = user.role === 'admin';
+        this.showAdmin = user && user.role === 'admin';
     });
   }
 

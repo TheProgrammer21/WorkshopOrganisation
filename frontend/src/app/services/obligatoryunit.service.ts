@@ -95,7 +95,6 @@ export class ObligatoryunitService {
         params = params.append('status', stat.toString());
       }
     }
-    console.log(params);
     return this.http.get<ObligatoryUnit[]>(`${this.obligatoryUnitAddress}/all`, {params}).pipe(
       catchError(err => this.handleError(err))
     );
