@@ -1,44 +1,47 @@
-<mat-error *ngIf="error">{{error}}</mat-error>
-<mat-card *ngIf="obligatoryUnit">
-  <mat-card-header>
-    <h3> {{obligatoryUnit.name}}</h3>
-  </mat-card-header>
-  <mat-card-content>
-    <mat-form-field appearance="fill">
-      <mat-label>Name</mat-label>
-      <input matInput required placeholder="Name" maxlength="64" [(ngModel)]="obligatoryUnit.name">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Beschreibung</mat-label>
-      <textarea matInput required placeholder="Beschreibung" maxlength="512" [(ngModel)]="obligatoryUnit.description"></textarea>
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Beginn Datum</mat-label>
-      <input matInput required [max]="obligatoryUnit.endDate" [matDatepicker]="startPicker" [(ngModel)]="obligatoryUnit.startDate">
-      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-      <mat-datepicker #startPicker></mat-datepicker>
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>End Datum</mat-label>
-      <input matInput required [min]="obligatoryUnit.startDate" [matDatepicker]="endPicker" [(ngModel)]="obligatoryUnit.endDate">
-      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-      <mat-datepicker #endPicker></mat-datepicker>
-    </mat-form-field>
-    <mat-form-field *ngIf="status !== undefined" appearance="fill">
-      <mat-label>Status</mat-label>
-      <mat-select [(ngModel)]="status">
-        <mat-option *ngFor="let stat of allStatus | keyvalue" [value]="stat.key" matTooltip="{{stat.value[1]}}">
-          {{stat.value[0]}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <div class="bottom-toolbar">
-      <button mat-raised-button (click)="onCancel()">
-        <mat-icon>close</mat-icon> Abbrechen
-      </button>
-      <button mat-raised-button (click)="onSave()">
-        <mat-icon>check</mat-icon> Speichern
-      </button>
-    </div>
-  </mat-card-content>
-</mat-card>
+<app-page-forbidden *ngIf="!isAdmin"></app-page-forbidden>
+<div *ngIf="isAdmin">
+  <mat-error *ngIf="error">{{error}}</mat-error>
+  <mat-card *ngIf="obligatoryUnit">
+    <mat-card-header>
+      <h3> {{obligatoryUnit.name}}</h3>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-form-field appearance="fill">
+        <mat-label>Name</mat-label>
+        <input matInput required placeholder="Name" maxlength="64" [(ngModel)]="obligatoryUnit.name">
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Beschreibung</mat-label>
+        <textarea matInput required placeholder="Beschreibung" maxlength="512" [(ngModel)]="obligatoryUnit.description"></textarea>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Beginn Datum</mat-label>
+        <input matInput required [max]="obligatoryUnit.endDate" [matDatepicker]="startPicker" [(ngModel)]="obligatoryUnit.startDate">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>End Datum</mat-label>
+        <input matInput required [min]="obligatoryUnit.startDate" [matDatepicker]="endPicker" [(ngModel)]="obligatoryUnit.endDate">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field *ngIf="status !== undefined" appearance="fill">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="status">
+          <mat-option *ngFor="let stat of allStatus | keyvalue" [value]="stat.key" matTooltip="{{stat.value[1]}}">
+            {{stat.value[0]}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="bottom-toolbar">
+        <button mat-raised-button (click)="onCancel()">
+          <mat-icon>close</mat-icon> Abbrechen
+        </button>
+        <button mat-raised-button (click)="onSave()">
+          <mat-icon>check</mat-icon> Speichern
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

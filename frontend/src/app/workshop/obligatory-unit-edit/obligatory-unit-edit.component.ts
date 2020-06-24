@@ -10,6 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ErrorService } from 'src/app/services/error.service';
 import { DialogService } from 'src/app/services/dialog.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-obligatory-unit-edit',
@@ -19,6 +20,8 @@ import { DialogService } from 'src/app/services/dialog.service';
 export class ObligatoryUnitEditComponent implements OnInit {
 
   public allStatus: Map<number, string[]> = STATUS;
+
+  public isAdmin: boolean;
 
   public error: string;
 
@@ -32,9 +35,11 @@ export class ObligatoryUnitEditComponent implements OnInit {
     private location: Location,
     private ouService: ObligatoryunitService,
     private errorService: ErrorService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private userService: UserService
   ) {
     this.ouid = +this.route.snapshot.paramMap.get('ouid');
+    this.userService.getUser().subscribe(user => this.isAdmin = user && user.role === 'admin');
   }
 
   ngOnInit(): void {

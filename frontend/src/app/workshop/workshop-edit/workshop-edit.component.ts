@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { DialogService } from 'src/app/services/dialog.service';
 import { ErrorService } from 'src/app/services/error.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-workshop-edit',
@@ -13,6 +14,8 @@ import { ErrorService } from 'src/app/services/error.service';
 export class WorkshopEditComponent implements OnInit {
 
   public error: string;
+
+  public isAdmin: boolean;
 
   private ouid: number;
   private wsid: number;
@@ -24,10 +27,12 @@ export class WorkshopEditComponent implements OnInit {
     private location: Location,
     private wsService: WorkshopService,
     private dialogService: DialogService,
-    private errorService: ErrorService
+    private errorService: ErrorService,
+    private userService: UserService
   ) {
     this.ouid = +this.route.snapshot.paramMap.get('ouid');
     this.wsid = +this.route.snapshot.paramMap.get('wsid');
+    this.userService.getUser().subscribe(user => this.isAdmin = user && user.role === 'admin');
   }
 
   ngOnInit(): void {

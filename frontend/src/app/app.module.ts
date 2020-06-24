@@ -49,7 +49,9 @@ import { ConfirmDialogComponent } from './custom-modals/confirm-dialog/confirm.d
     WorkshopDetailComponent,
     WorkshopEditComponent,
     ObligatoryUnitEditComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    PageNotFoundComponent,
+    PageForbiddenComponent
   ],
   imports: [
     BrowserModule,
@@ -97,5 +99,7 @@ import localeDe from '@angular/common/locales/de';
 import localeDeExtra from '@angular/common/locales/extra/de';
 import { ErrorService } from './services/error.service';
 import { MAT_DATE_LOCALE, DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
+import { PageNotFoundComponent } from './custom-pages/page-not-found/page-not-found.component';
+import { PageForbiddenComponent } from './custom-pages/page-forbidden/page-forbidden.component';
 
 registerLocaleData(localeDe, 'de', localeDeExtra);
